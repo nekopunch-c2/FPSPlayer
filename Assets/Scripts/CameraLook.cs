@@ -25,7 +25,7 @@ public class CameraLook : MonoBehaviour
     [SerializeField] private Transform _playerBody;
 
     private float _desiredRotation;
-    private PlayerControl _playerControl;
+    //private PlayerControl _playerControl;
     private bool _isRotating = false;
     private float _cinemachineTargetPitch;
     private float _cinemachineTargetYaw;
@@ -33,7 +33,7 @@ public class CameraLook : MonoBehaviour
 
     void Awake()
     {
-        _playerControl = PlayerControl.Instance;
+        //_playerControl = PlayerControl.Instance;
         Cursor.lockState = CursorLockMode.Locked;
     }
     private void LateUpdate()
@@ -44,9 +44,9 @@ public class CameraLook : MonoBehaviour
 
     public Quaternion CameraRotation()
     {
-        _cinemachineTargetYaw += _playerControl.GetMouseDelta().x * rotationSpeed;
-        _cinemachineTargetPitch += _playerControl.GetMouseDelta().y * rotationSpeed * -1f;
-        _rotationVelocity = _playerControl.GetMouseDelta().x * rotationSpeed;
+        //_cinemachineTargetYaw += _playerControl.GetMouseDelta().x * rotationSpeed;
+       // _cinemachineTargetPitch += _playerControl.GetMouseDelta().y * rotationSpeed * -1f;
+        //_rotationVelocity = _playerControl.GetMouseDelta().x * rotationSpeed;
         _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
 
         

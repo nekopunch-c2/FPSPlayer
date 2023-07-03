@@ -70,15 +70,15 @@ public class PlayerStateMachine : MonoBehaviour
     public bool AnimationsPlayed { get; set; }
 
     //references
-    private PlayerControl playerControl;
+    //private PlayerControl playerControl;
 
-    private RotateBodyToHorizon rotateBodyToHorizon;
+    //private RotateBodyToHorizon rotateBodyToHorizon;
 
     private CameraLook cameraLook;
 
     private Animator _animator;
 
-    private PlayerMovement playerMovement;
+    //private PlayerMovement playerMovement;
 
     //PLAYER CONTROL
     /*private static PlayerControl _instance;
