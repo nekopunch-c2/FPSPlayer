@@ -5,36 +5,35 @@ using UnityEngine.InputSystem;
 
 public class CameraLook : MonoBehaviour
 {
-    [SerializeField] private Transform playerBody;
 
-    private PlayerControl playerControl;
-
-    [SerializeField] private Transform forward;
-
-    public float rotationSpeed = 1.0f;
-
-    public float rotationSpeedForBody = 1.0f;
-
-    private bool isRotating = false;
-    //private float _threshold = 0.01f;
-
-    private float _cinemachineTargetPitch;
-    private float _cinemachineTargetYaw;
-
-    private float _rotationVelocity;
 
     [Tooltip("How far in degrees can you move the camera up")]
     public float TopClamp = 90.0f;
     [Tooltip("How far in degrees can you move the camera down")]
     public float BottomClamp = -90.0f;
 
-    private float desiredRotation;
-    //[SerializeField] private Quaternion startRotation;
-    public float rotationThreshold = 360f;
+    [Tooltip("The camera follow should go here, this is used to calculate where the camera is currently facing")]
+    [SerializeField] private Transform _forward;
+
+    [Tooltip("How fast should the camera rotate?")]
+    public float rotationSpeed = 1.0f;
+
+    [Tooltip("dunno")]
+    public float rotationThreshold = 60f;
+
+    [Tooltip("The object which contains ONLY the player's body object, and not the camera follow")]
+    [SerializeField] private Transform _playerBody;
+
+    private float _desiredRotation;
+    private PlayerControl _playerControl;
+    private bool _isRotating = false;
+    private float _cinemachineTargetPitch;
+    private float _cinemachineTargetYaw;
+    private float _rotationVelocity;
 
     void Awake()
     {
-        playerControl = PlayerControl.Instance;
+        _playerControl = PlayerControl.Instance;
         Cursor.lockState = CursorLockMode.Locked;
     }
     private void LateUpdate()
@@ -45,26 +44,21 @@ public class CameraLook : MonoBehaviour
 
     public Quaternion CameraRotation()
     {
-        _cinemachineTargetYaw += playerControl.GetMouseDelta().x * rotationSpeed;
-        _cinemachineTargetPitch += playerControl.GetMouseDelta().y * rotationSpeed * -1f;
-        _rotationVelocity = playerControl.GetMouseDelta().x * rotationSpeed;
+        _cinemachineTargetYaw += _playerControl.GetMouseDelta().x * rotationSpeed;
+        _cinemachineTargetPitch += _playerControl.GetMouseDelta().y * rotationSpeed * -1f;
+        _rotationVelocity = _playerControl.GetMouseDelta().x * rotationSpeed;
         _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
 
         
-        forward.transform.localRotation = Quaternion.Euler(_cinemachineTargetPitch, _cinemachineTargetYaw, 0.0f);
+        _forward.transform.localRotation = Quaternion.Euler(_cinemachineTargetPitch, _cinemachineTargetYaw, 0.0f);
 
-        return forward.rotation;
+        return _forward.rotation;
     }
 
 
     public void RotateLeftAndRight()
     {
-        /*Vector3 eulerAngles = playerBody.transform.rotation.eulerAngles;
-        eulerAngles.y = forward.rotation.y;
-        Quaternion modifiedRotation = Quaternion.Euler(eulerAngles);
-        playerBody.transform.rotation = modifiedRotation;*/
-
-        playerBody.transform.Rotate(Vector3.up * _rotationVelocity);
+        _playerBody.transform.Rotate(Vector3.up * _rotationVelocity);
     }
 
     private static float ClampAngle(float lfAngle, float lfMin, float lfMax)

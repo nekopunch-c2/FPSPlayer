@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class CharacterAnimation : MonoBehaviour
 {
-    //animation
+    //ANIMATION
+    //private variables
     private int _animIDSpeed;
     private int _animIDGrounded;
     private int _animIDJump;
     private int _animIDInAir;
     private int _animIDLanding;
-    private int _animIDMotionSpeed;
     private int _animIDCrouching;
 
     private int _xVelHash;
@@ -22,16 +22,10 @@ public class CharacterAnimation : MonoBehaviour
 
     private float _animationBlend;
 
-    public bool animationsPlayed { get; set; }
+    //properties
+    public bool AnimationsPlayed { get; set; }
 
-    //jump timeout
-    public float jumpTimeout { get; set; }
-    public float jumpTimerFull = 0.3f;
-    //land timeout
-    public float landTimeout { get; set; }
-    public float landTimerFull = 0.15f;
-
-    //references
+    //REFERENCES
     private PlayerControl playerControl;
 
     private RotateBodyToHorizon rotateBodyToHorizon;
@@ -45,11 +39,6 @@ public class CharacterAnimation : MonoBehaviour
 
     void Start()
     {
-        //jump timeout
-        jumpTimeout = jumpTimerFull;
-
-        //land timeout
-        landTimeout = landTimerFull;
 
         //getting references
         _animator = GetComponentInChildren<Animator>();
@@ -61,7 +50,7 @@ public class CharacterAnimation : MonoBehaviour
         //asssigning animation IDs
         AssignAnimationIDs();
 
-        // ensuring that the references are properly assigned
+        // ENSURING REFERENCES ARE PROPERLY ASSIGNED
         if (_animator == null)
             Debug.LogError("Animator reference is null.");
 
@@ -80,58 +69,45 @@ public class CharacterAnimation : MonoBehaviour
     }
     void Update()
     {
-        
         HandleAnim();
     }
 
     void HandleAnim()
     {
-        
-        //Debug.Log("Cibi");
         _animator.SetFloat(_xVelHash, playerControl.CurrentInputVector.x);
         _animator.SetFloat(_yVelHash, playerControl.CurrentInputVector.y);
-        //Debug.Log(rotateBodyToHorizon.targetRotation.y);
 
-
-        if (rotateBodyToHorizon.isTurning)
+        //turning
+        if (rotateBodyToHorizon.IsTurning)
         {
-            if (!animationsPlayed)
+            if (!AnimationsPlayed)
             {
-                //_animator.SetFloat(_turningAngleHash, rotateBodyToHorizon.HeadRotationAngle);
                 float normalizedAngle = Mathf.Clamp01(rotateBodyToHorizon.targetRotation.y);
                 // Trigger the appropriate blend tree animation based on the turn angle
                 if (rotateBodyToHorizon.targetRotation.y < 0f)
                 {
 
                     _animator.SetFloat(_turningAngleHash, normalizedAngle);
-                    /*_animator.IsInTransition(0));
-                    {
-                        return;
-                    }*/
 
                     _animator.CrossFadeInFixedTime("TurnLeft", 0.3f);
-                    //_animator.Play("TurnLeft");
                     normalizedAngle = 0f;
                 }
                 else if (rotateBodyToHorizon.targetRotation.y > 0f)
                 {
                     _animator.SetFloat(_turningAngleHash, normalizedAngle);
-                    /*_animator.IsInTransition(0));
-                    {
-                        return;
-                    }*/
+
 
                     _animator.CrossFadeInFixedTime("TurnLeft", 0.3f);
-                    //_animator.Play("TurnRight");
                     normalizedAngle = 0f;
                 }
-                animationsPlayed = true;
+                AnimationsPlayed = true;
             }
         }
         else
         {
-            animationsPlayed = false;
+            AnimationsPlayed = false;
         }
+
         //crouching
         if (playerControl.IsCrouching)
         {
@@ -141,12 +117,9 @@ public class CharacterAnimation : MonoBehaviour
         {
             _animator.SetBool(_animIDCrouching, false);
         }
-
         //jumping
-        //_animator.SetFloat(_turningLeftHash, playerControl.CurrentInputVector.y);
         if (playerControl.PlayerJump())
         {
-            jumpTimeout -= Time.deltaTime; //subtract from jump timeout over time
             _animator.CrossFadeInFixedTime("JumpStart", 0.1f);
         }
         
@@ -154,30 +127,10 @@ public class CharacterAnimation : MonoBehaviour
         {
             _animator.SetBool(_animIDInAir, false);
             _animator.SetBool(_animIDLanding, true);
-
-            /*landTimeout -= Time.deltaTime; //subtract from land timeout over time
-            
-            if (!playerControl.PlayerJump() || landTimeout == 0)
-            {*/
             _animator.SetBool(_animIDGrounded, true);
-                
-                //landTimeout = landTimerFull; //reset land timeout
-            //}
         }
         else
         {
-            /*if (landTimeout >= 0.0f)
-            {
-                landTimeout -= Time.deltaTime;
-            }
-            else
-            {           
-                _animator.SetBool(_animIDInAir, true);
-                _animator.SetBool(_animIDGrounded, false);
-                _animator.SetBool(_animIDLanding, false);
-            }
-            //_animator.SetBool(_animIDInAir, true);
-            */
             _animator.SetBool(_animIDInAir, true);
             _animator.SetBool(_animIDGrounded, false);
             _animator.SetBool(_animIDLanding, false);
@@ -189,19 +142,13 @@ public class CharacterAnimation : MonoBehaviour
         _xVelHash = Animator.StringToHash("x_velocity");
         _yVelHash = Animator.StringToHash("y_velocity");
 
- 
         _turningAngleHash = Animator.StringToHash("turnAngle_velocity");
-     
-        
         _turningLeftHash = Animator.StringToHash("left_velocity");
-
         _animIDCrouching = Animator.StringToHash("Crouching");
-
         _animIDGrounded = Animator.StringToHash("Grounded");
         _animIDJump = Animator.StringToHash("Jump");
         _animIDInAir = Animator.StringToHash("InAir");
         _animIDLanding = Animator.StringToHash("Landed");
-        _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
     }
 }
 //_animator.SetBool(_animIDJump, false);

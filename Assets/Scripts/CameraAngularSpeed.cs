@@ -5,31 +5,31 @@ using UnityEngine;
 public class CameraAngularSpeed : MonoBehaviour
 {
     public Transform cameraTransform;
-    private float previousRotationY;
-    private float angularSpeedY;
+    private float _previousRotationY;
+    private float _angularSpeedY;
 
     public float AngularSpeedY
     {
         get
         {
-            return angularSpeedY;
+            return _angularSpeedY;
         }
     }
 
     private void Start()
     {
-        previousRotationY = cameraTransform.eulerAngles.y;
+        _previousRotationY = cameraTransform.eulerAngles.y;
     }
 
     private void Update()
     {
         // Calculate the angular speed on the Y-axis in degrees per second
         float currentRotationY = cameraTransform.eulerAngles.y;
-        float angleY = Mathf.DeltaAngle(previousRotationY, currentRotationY);
-        angularSpeedY = Mathf.Abs(angleY) / Time.deltaTime;
+        float angleY = Mathf.DeltaAngle(_previousRotationY, currentRotationY);
+        _angularSpeedY = Mathf.Abs(angleY) / Time.deltaTime;
 
         // Update the previous rotation for the next frame
-        previousRotationY = currentRotationY;
+        _previousRotationY = currentRotationY;
 
         // Output the angular speed on the Y-axis
         //Debug.Log("Angular Speed Y: " + angularSpeedY);

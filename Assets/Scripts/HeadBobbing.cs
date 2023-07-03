@@ -6,47 +6,56 @@ using Cinemachine;
 
 public class HeadBobbing : MonoBehaviour
 {
-    [SerializeField] CinemachineVirtualCamera runningCam;
-    [SerializeField] CinemachineVirtualCamera walkingCam;
-    [SerializeField] CinemachineVirtualCamera notGroundedCam;
-    private PlayerControl playerControl;
-    [SerializeField] int activatePriority = 15;
-    [SerializeField] int standingPriority = 5;
-    private PlayerMovement playerMovement;
+    //serialized fields
+    [SerializeField] CinemachineVirtualCamera _runningCam;
+    [SerializeField] CinemachineVirtualCamera _walkingCam;
+    [SerializeField] CinemachineVirtualCamera _notGroundedCam;
+    [SerializeField] private int _activatePriority = 15;
+    [SerializeField] private int _standingPriority = 5;
+
+    //references
+    private PlayerMovement _playerMovement;
+    private PlayerControl _playerControl;
 
     void Start()
     {
-        playerControl = PlayerControl.Instance;
-        playerMovement = GetComponentInParent<PlayerMovement>();
+        _playerControl = PlayerControl.Instance;
+        _playerMovement = GetComponentInParent<PlayerMovement>();
+        // ENSURING REFERENCES ARE PROPERLY ASSIGNED!
+        if (_playerControl == null)
+            Debug.LogError("PlayerControl reference is null.");
+
+        if (_playerMovement == null)
+            Debug.LogError("PlayerMovement reference is null.");
     }
 
 
     void Update()
     {
 
-        if (playerControl.IsMoving)
+        if (_playerControl.IsMoving)
         {
-            if (playerControl.IsRunning || playerControl.GetPlayerRunning() > 0)
+            if (_playerControl.IsRunning || _playerControl.GetPlayerRunning() > 0)
             {
-                runningCam.Priority = activatePriority;
+                _runningCam.Priority = _activatePriority;
             }
-            else if (!playerMovement.isGrounded)
+            else if (!_playerMovement.isGrounded)
             {
-                notGroundedCam.Priority = activatePriority;
+                _notGroundedCam.Priority = _activatePriority;
             }
             else
             {
-                runningCam.Priority = standingPriority;
-                walkingCam.Priority = activatePriority;
-                notGroundedCam.Priority = standingPriority;
+                _runningCam.Priority = _standingPriority;
+                _walkingCam.Priority = _activatePriority;
+                _notGroundedCam.Priority = _standingPriority;
             }
         }
             
         else
         {
-            runningCam.Priority = standingPriority;
-            walkingCam.Priority = standingPriority;
-            notGroundedCam.Priority = standingPriority;
+            _runningCam.Priority = _standingPriority;
+            _walkingCam.Priority = _standingPriority;
+            _notGroundedCam.Priority = _standingPriority;
         }
 
         

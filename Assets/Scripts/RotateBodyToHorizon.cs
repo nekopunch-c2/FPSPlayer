@@ -4,44 +4,47 @@ using UnityEngine;
 
 public class RotateBodyToHorizon : MonoBehaviour
 {
-    [SerializeField] private GameObject player;
-
-    private PlayerControl playerControl;
-
-
-    public float headRotationThreshold = 60f; // Threshold for head rotation in degrees
-    public float bodyRotationSpeed = 5f; // Speed of body rotation
+    //public variables
     public Transform playerBody; // Transform representing the player's body
     public Transform targetTransform; // Transform representing the target to rotate towards
-    private Quaternion originalBodyRotation; // Original rotation of the player's body
     public Quaternion targetRotation; // Target rotation to match
-    private bool isBodyTurning; // Flag to track if the body is turning
+    public float headRotationThreshold = 60f; // Threshold for head rotation in degrees
+    public float bodyRotationSpeed = 5f; // Speed of body rotation
+    public float rotationThreshold = 90f; //From this threshold on, the player will smoothly rotate instead of lerping
 
+    //private variables
+    private PlayerControl playerControl;
+    private Quaternion originalBodyRotation; // Original rotation of the player's body
+    private bool isBodyTurning; // Flag to track if the body is turning
+    private float headRotationAngle; //angle that the head has rotated
+    private Quaternion cameraForwardRotation; //stores the current forward rotation of the camera
+
+    //properties
+    public bool IsTurning { get; set; }
+
+
+    //REFERENCES
     //camera manager
     private CameraAngularSpeed cameraAngularSpeed;
     private CameraLook cameraLook; //Reference to CameraLook scrupt
-
     //character animation
     private CharacterAnimation characterAnimation;
-
     //player movement
     private PlayerMovement playerMovement;
 
-    private float headRotationAngle; //angle that the head has rotated
 
-    private Quaternion cameraForwardRotation; //stores the current forward rotation of the camera
-
-    public float rotationThreshold = 90f; //From this threshold on, the player will smoothly rotate instead of lerping
-
-    public bool isTurning { get; set; }
     
     void Start()
     {
-        playerControl = PlayerControl.Instance;
-        player = GameObject.FindWithTag("Player");
+        //GETTING REFERENCES
 
-        //camera manager
+        //player control
+        playerControl = PlayerControl.Instance;
+
+        //under camera manager
+        //camera look
         cameraLook = GameObject.FindWithTag("CameraManager").GetComponent<CameraLook>();
+        //camera angular speed
         cameraAngularSpeed = GameObject.FindWithTag("CameraManager").GetComponent<CameraAngularSpeed>();
 
         //characteranimation
@@ -50,12 +53,12 @@ public class RotateBodyToHorizon : MonoBehaviour
         //player movement
         playerMovement = GetComponent<PlayerMovement>();
 
+        //STUFF TO DO AT START
         originalBodyRotation = playerBody.rotation;
         targetRotation = playerBody.rotation;
-
         cameraForwardRotation = cameraLook.CameraRotation();
 
-        // ensuring that the references are properly assigned
+        // ENSURING REFERENCES ARE PROPERLY ASSIGNED!
         if (characterAnimation == null)
             Debug.LogError("Animator reference is null.");
 
@@ -103,11 +106,11 @@ public class RotateBodyToHorizon : MonoBehaviour
                 // Set the new target rotation
                 targetRotation *= Quaternion.Euler(0f, headRotationAngle, 0f);
                 isBodyTurning = true;
-                isTurning = true;
+                IsTurning = true;
             }
-            if (characterAnimation.animationsPlayed)
+            if (characterAnimation.AnimationsPlayed)
             {
-                isTurning = false;
+                IsTurning = false;
             }
 
 
@@ -143,7 +146,7 @@ public class RotateBodyToHorizon : MonoBehaviour
                 // Snap to the target rotation
                 playerBody.rotation = targetRotation;
                 isBodyTurning = false;
-                isTurning = false;
+                IsTurning = false;
             }
 
         }
