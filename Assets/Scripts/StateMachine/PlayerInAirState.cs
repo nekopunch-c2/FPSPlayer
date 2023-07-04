@@ -2,20 +2,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerInAirState : PlayerBaseState
+public class PlayerInAirState : PlayerBaseState, IRootState
 {
     public PlayerInAirState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory)
-        : base(currentContext, playerStateFactory) { }
+        : base(currentContext, playerStateFactory) 
+    {
+        _isRootState = true;
+       
+    }
     public override void EnterState()
     {
         //Debug.Log("cui");
+        InitializeSubState();
     }
 
     public override void UpdateState()
     {
-        CheckSwitchStates();
-        HandleJumpGravity();
+        HandleGravity();
         HandleAnim();
+        CheckSwitchStates();
     }
 
     public override void ExitState()
@@ -34,9 +39,20 @@ public class PlayerInAirState : PlayerBaseState
 
     public override void InitializeSubState()
     {
-
+        if (!_ctx.IsMoving && !_ctx.IsRunning)
+        {
+            SetSubState(_factory.Idle());
+        }
+        else if (_ctx.IsMoving && !_ctx.IsRunning)
+        {
+            SetSubState(_factory.Walk());
+        }
+        else
+        {
+            SetSubState(_factory.Run());
+        }
     }
-    void HandleJumpGravity()
+    public void HandleGravity()
     {
         _ctx.VelocityY += _ctx.Gravity * Time.deltaTime;
         _ctx.CharacterController.Move(_ctx.Velocity * Time.deltaTime);

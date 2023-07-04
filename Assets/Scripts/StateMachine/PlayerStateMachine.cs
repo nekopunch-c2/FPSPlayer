@@ -13,28 +13,27 @@ public class PlayerStateMachine : MonoBehaviour
     //GETSET
     public PlayerBaseState CurrentState { get { return _currentState; } set { _currentState = value; } }
     //basic movement
-    public float Speed  { get { return speed; } set { speed = value; } }
-    public float Gravity { get { return gravity; } set { gravity = value; } }
-    public float JumpHeight { get { return jumpHeight; } set { jumpHeight = value; } }
-    public float JumpHeightPull { get { return jumpHeightPull; } set { jumpHeightPull = value; } }
-    public float SpeedMultiplier { get { return speedMultiplier; } set { speedMultiplier = value; } }
-    public float CrouchSpeedMultiplier { get { return crouchSpeedMultiplier; } set { crouchSpeedMultiplier = value; } }
-    public float AirSmoothment { get { return airSmoothment; } set { airSmoothment = value; } }
-    public float VelocityY { get { return velocity.y; } set { velocity.y = value; } }
-    public Vector3 Velocity { get { return velocity; } set { velocity = value; } }
-    public bool IsJumping { get { return isJumping; } set { isJumping = value; } }
-    public bool IsGrounded { get { return isGrounded; } set { isGrounded = value; } }
-    public Vector3 AirMovementSmoothValueInAir { get { return airMovementSmoothValueInAir; } set { airMovementSmoothValueInAir = value; } }
-    public Vector3 MovementSmooth { get { return movementSmooth; } set { movementSmooth = value; } }
+    public float Speed  { get { return _speed; } set { _speed = value; } }
+    public float Gravity { get { return _gravity; } set { _gravity = value; } }
+    public float JumpHeight { get { return _jumpHeight; } set { _jumpHeight = value; } }
+    public float JumpHeightPull { get { return _jumpHeightPull; } set { _jumpHeightPull = value; } }
+    public float SpeedMultiplier { get { return _speedMultiplier; } set { _speedMultiplier = value; } }
+    public float CrouchSpeedMultiplier { get { return _crouchSpeedMultiplier; } set { _crouchSpeedMultiplier = value; } }
+    public float AirSmoothment { get { return _airSmoothment; } set { _airSmoothment = value; } }
+    public float VelocityY { get { return _velocity.y; } set { _velocity.y = value; } }
+    public Vector3 Velocity { get { return _velocity; } set { _velocity = value; } }
+    public bool IsJumping { get { return _isJumping; } set { _isJumping = value; } }
+    public bool IsGrounded { get { return _isGrounded; } set { _isGrounded = value; } }
+    public Vector3 AirMovementSmoothValueInAir { get { return _airMovementSmoothValueInAir; } set { _airMovementSmoothValueInAir = value; } }
+    public Vector3 MovementSmooth { get { return _movementSmooth; } set { _movementSmooth = value; } }
     public CharacterController CharacterController { get { return characterController; } }
-    public Transform PlayerBody { get { return playerBody; } }
-    public float MoveInputX { get { return moveInput.x; } set { moveInput.x = value; } }
-    public float MoveInputY { get { return moveInput.y; } set { moveInput.y = value; } }
+    public Transform PlayerBody { get { return _playerBody; } }
+    public float MoveInputX { get { return _moveInput.x; } set { _moveInput.x = value; } }
+    public float MoveInputY { get { return _moveInput.y; } set { _moveInput.y = value; } }
     public bool IsRunning { get { return isRunning; } set { isRunning = value; } }
-    public Vector2 GetPlayerMovementApplied { get { return GetPlayerMovement(); } }
     public bool IsMoving { get { return isMoving; } set { isMoving = value; } }
-
-
+    public float VectorMultiplier { get { return _vectorMultiplier; } set { _vectorMultiplier = value; } }
+    public float SlopeForceRayLength { get { return _vectorMultiplier; } set { _vectorMultiplier = value; } }
     //animation
     public Animator Animator { get { return _animator; } }
     public int AnimIDSpeed { get { return _animIDSpeed; } set { _animIDSpeed = value; } }
@@ -45,6 +44,7 @@ public class PlayerStateMachine : MonoBehaviour
     public int AnimIDInCrouching { get { return _animIDCrouching; } set { _animIDCrouching = value; } }
     public int XVelHash { get { return _xVelHash; } set { _xVelHash = value; } }
     public int YVelHash { get { return _yVelHash; } set { _yVelHash = value; } }
+    public float AnimationBlendSpeed  { get { return animationBlendSpeed; } set { animationBlendSpeed = value; } }
 
     public float CurrentInputVectorY { get { return CurrentInputVector.y; } }
     public float CurrentInputVectorX { get { return CurrentInputVector.x; } }
@@ -105,9 +105,9 @@ public class PlayerStateMachine : MonoBehaviour
     public bool IsCrouching { get; set; }
     public bool isMoving;
 
-    private float _vectorMultiplier;
+    private float _vectorMultiplier = 1f;
 
-    public Vector2 CurrentInputVector { get { return currentInputVector; } }
+    public Vector2 CurrentInputVector { get { return currentInputVector * _vectorMultiplier; } }
 
     private Vector2 currentInputVector;
 
@@ -128,55 +128,55 @@ public class PlayerStateMachine : MonoBehaviour
     //stairs
     [Header("Stairs And Slopes")]
     [Tooltip("this value will be used to find the current ground and determine if it's tagged 'stairs'. Higher values will work for more situations, but extreme ones will consume too many resources")]
-    [SerializeField] private float stairsCheckLength = 0.1f;
+    [SerializeField] private float _stairsCheckLength = 0.1f;
     [Tooltip("this value will be used, when in the air, to determine how far the ground is from the point the player is at. Higher values will work for more situations, but extreme ones will consume too many resources")]
-    [SerializeField] private float lengthFromGround;
+    [SerializeField] private float _lengthFromGround;
     [Tooltip("to prevent the bouncing that happens to most first person controllers when going down slopes or stairs, gravity is multiplied by this value. Higher values work for more situations, but extreme ones risk the player clipping through the floor.")]
-    [SerializeField] private float slopeAndStairForce;
+    [SerializeField] private float _slopeAndStairForce;
     [Tooltip("this value will be used to determine the surface the player is standing on is a slope (using normals).")]
-    [SerializeField] private float slopeForceRayLength;
+    [SerializeField] private float _slopeForceRayLength;
 
 
 
 
     [Header("Basic Movement")]
-    [SerializeField] private float speed = 10f;
+    [SerializeField] private float _speed = 10f;
     [Tooltip("how much should the player accelerate when pulled by gravity? A value around -30 is not too floaty, but doesn't snap you right down either.")]
-    [SerializeField] private float gravity = -9.81f;
+    [SerializeField] private float _gravity = -9.81f;
     [Tooltip("this value is used to calculate the vertical velocity. best to leave it between x and y.")]
-    [SerializeField] private float jumpHeight = 2f;
+    [SerializeField] private float _jumpHeight = 2f;
     [Tooltip("how far should the player jump before it's slowed down by gravity.")]
-    [SerializeField] private float jumpHeightPull = 2f;
+    [SerializeField] private float _jumpHeightPull = 2f;
     [Tooltip("the 'speed' value will be multiplied by this value when running is toggled.")]
-    [SerializeField] private float speedMultiplier;
+    [SerializeField] private float _speedMultiplier;
     [Tooltip("the 'speed' value will be multiplied by this value when crouching is toggled.")]
-    [SerializeField] private float crouchSpeedMultiplier;
+    [SerializeField] private float _crouchSpeedMultiplier;
     [Tooltip("how smooth movement in the air should be. This is used both for in air movement as well as for keeping momentum")]
-    [SerializeField] private float airSmoothment = 0.6f;
+    [SerializeField] private float _airSmoothment = 0.6f;
     [Tooltip("Transform representing the player's body")]
-    [SerializeField] private Transform playerBody; 
+    [SerializeField] private Transform _playerBody; 
 
     //private basic movement
-    private Vector3 movementSmooth = Vector3.zero;
-    private Vector3 airMovementSmoothValueInAir;
-    private Transform currentGround;
-    private Vector2 moveInput;
-    private bool isFalling;
+    private Vector3 _movementSmooth = Vector3.zero;
+    private Vector3 _airMovementSmoothValueInAir;
+    private Transform _currentGround;
+    private Vector2 _moveInput;
+    private bool _isFalling;
     private bool _hasFired;
-    Vector3 velocity;
-     private bool isJumping;
-    [SerializeField] private bool isGrounded;
+    Vector3 _velocity;
+    private bool _isJumping;
+    [SerializeField] private bool _isGrounded;
 
     //crouching
     [Header("Crouching")]
     [Tooltip("")]
-    [SerializeField] private float standHeight = 2f;
+    [SerializeField] private float _standHeight = 2f;
     [Tooltip("")]
-    [SerializeField] private float crouchHeight = 1f;
-    private bool canGoUp;
+    [SerializeField] private float _crouchHeight = 1f;
+    private bool _canGoUp;
 
-    Vector3 crouchCenterAdjusted;
-    Vector3 standCenterAdjusted;
+    Vector3 _crouchCenterAdjusted;
+    Vector3 _standCenterAdjusted;
 
     [Tooltip("")]
     [SerializeField] private float cameraHeight;
@@ -184,32 +184,25 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField] private float crouchSmoothTime = 1f;
     private float velocityCrouch;
     private float velocityCrouchOther;
-    //groundcheck
     [SerializeField] private LayerMask roofLayers;
     [SerializeField] private float roofCheckDistance = 3f;
-    //[SerializeField] private float groundCheckRadius;
     private float roofCheckStart;
 
+    //groundcheck
+    [Header("Ground Check")]
+    [SerializeField] private float groundCheckRadius = 0.32f;
+    [SerializeField] private Vector3 offset = new Vector3(0f, 0.5f, 0f);
+    [SerializeField] private float maxDistance = 0.22f;
+    Vector3 groundCheckOrigin;
+    RaycastHit hitInfo;
     
-
-
 
     //animation
-    public Vector3 movementVectorForAnim;
+    [Header("Animation")]
+    [SerializeField] private float animationBlendSpeed = 1.5f;
 
 
-    
-
-    
-
-    //private Vector3 movement;
-
-
-    //Transform mTransform;
-
-
-
-
+    Vector3 movementVectorForAnim;
     RaycastHit groundInfo;
 
 
@@ -317,12 +310,16 @@ public class PlayerStateMachine : MonoBehaviour
 
     void Update()
     {
-        GroundCheck();
-        _currentState.UpdateStates();
 
-        moveInput = GetPlayerMovement();
+        _currentState.UpdateStates();
+        
+        
+
+        _moveInput = GetPlayerMovement();
+        GroundCheck();
         //characterController.Move(Velocity * Time.deltaTime);
         HandleAnimStateMachine();
+        HoldToRun();
 
     }
 
@@ -330,6 +327,7 @@ public class PlayerStateMachine : MonoBehaviour
     {
         _animator.SetFloat(_xVelHash, CurrentInputVector.x);
         _animator.SetFloat(_yVelHash, CurrentInputVector.y);
+
     }
 
     private void AssignAnimationIDs()
@@ -352,21 +350,41 @@ public class PlayerStateMachine : MonoBehaviour
     }
     void GroundCheck()
     {
+        groundCheckOrigin = transform.position + offset;
+        bool hitFloor = Physics.SphereCast(groundCheckOrigin, groundCheckRadius, Vector3.down, out hitInfo, maxDistance);
+        // Draw the sphere at the origin point
+        
 
-        if (characterController.isGrounded)
+        // Draw a line representing the direction and distance of the sphere cast
+        
+
+        if (/*characterController.isGrounded*/ hitFloor)
         {
-            isGrounded = true;
-            //isJumping = false;
+            _isGrounded = true;
 
+            
+
+            // Draw a line from the origin to the hit point
+            Debug.DrawLine(groundCheckOrigin, hitInfo.point, Color.yellow);
         }
         else
         {
-            isGrounded = false;
-
+            _isGrounded = false;
         }
 
     }
 
+    void OnDrawGizmos()
+    {
+        groundCheckOrigin = transform.position + offset;
+        Gizmos.color = Color.green;
+        Gizmos.DrawSphere(groundCheckOrigin, groundCheckRadius);
+        // Draw a sphere at the hit point
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawSphere(hitInfo.point, 0.1f);
+        Gizmos.DrawLine(groundCheckOrigin, groundCheckOrigin + Vector3.down * maxDistance);
+
+    }
     private void OnEnable()
     {
         fpsPlayer.Enable();
@@ -459,7 +477,7 @@ public class PlayerStateMachine : MonoBehaviour
     {
         if (!holdToRun)
         {
-            if (context.started && !isRunning && !IsCrouching)
+            if (context.started && !isRunning)
             {
                 isRunning = true;
                 //_vectorMultiplier = 2f;
@@ -476,6 +494,7 @@ public class PlayerStateMachine : MonoBehaviour
     {
         if (holdToRun)
         {
+            
             if (GetPlayerRunning() > 0)
             {
                 isRunning = true;

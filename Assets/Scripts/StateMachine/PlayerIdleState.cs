@@ -14,8 +14,9 @@ public class PlayerIdleState : PlayerBaseState
 
     public override void UpdateState()
     {
+        Debug.Log("IS IDLE");
         CheckSwitchStates();
-        Debug.Log("the state is Idle");
+        HandleIdle();
     }
 
     public override void ExitState()
@@ -32,12 +33,23 @@ public class PlayerIdleState : PlayerBaseState
         else if (_ctx.IsMoving)
         {
             SwitchState(_factory.Walk());
-            Debug.Log("the state should be walk");
         }
     }
 
     public override void InitializeSubState()
     {
 
+    }
+
+    void HandleIdle()
+    {
+        float currentMultiplier = _ctx.VectorMultiplier;
+        // Target value for interpolation
+        float targetValue = 1f;
+        // Calculate the interpolated value
+        float interpolatedValue = Mathf.Lerp(currentMultiplier, targetValue, _ctx.AnimationBlendSpeed * Time.deltaTime);
+
+        // Assign the interpolated value back to VectorMultiplier
+        _ctx.VectorMultiplier = interpolatedValue;
     }
 }

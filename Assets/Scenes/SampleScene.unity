@@ -7044,23 +7044,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf287b7d7382b2c478b90dea494cd4b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  holdToRun: 0
+  holdToRun: 1
   holdToCrouch: 0
-  controlSmoothment: 0.1
+  controlSmoothment: 0.2
   mouseSmoothment: 0.1
   mouseSensitivity: 1
   hasFiredOnce: 0
   isMoving: 0
-  _vectorMultiplier: 1
   stairsCheckLength: 0.1
   lengthFromGround: 0
   slopeAndStairForce: 0
   slopeForceRayLength: 0
-  speed: 10
+  speed: 3
   gravity: -20
   jumpHeight: 1
   jumpHeightPull: 1
-  speedMultiplier: 1
+  speedMultiplier: 2
   crouchSpeedMultiplier: 0
   airSmoothment: 0.6
   playerBody: {fileID: 945318531}

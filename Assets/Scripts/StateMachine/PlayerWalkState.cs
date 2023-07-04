@@ -4,17 +4,18 @@ using UnityEngine;
 
 public class PlayerWalkState : PlayerBaseState
 {
+
     public PlayerWalkState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory)
         : base(currentContext, playerStateFactory) { }
     public override void EnterState()
     {
-
+        
     }
 
     public override void UpdateState()
     {
-        CheckSwitchStates();
         HandleWalk();
+        CheckSwitchStates();
     }
 
     public override void ExitState()
@@ -24,7 +25,7 @@ public class PlayerWalkState : PlayerBaseState
 
     public override void CheckSwitchStates()
     {
-        if (!_ctx.GetPlayerMovementApplied.Equals(Vector2.zero) && _ctx.IsRunning)
+        if (_ctx.IsMoving && _ctx.IsRunning)
         {
             SwitchState(_factory.Run());
         }
@@ -41,13 +42,17 @@ public class PlayerWalkState : PlayerBaseState
 
     void HandleWalk()
     {
-        Debug.Log("isWalking");
-        Vector3 movement = (_ctx.MoveInputY * _ctx.PlayerBody.forward) + (_ctx.MoveInputX * _ctx.PlayerBody.right);
+        float currentMultiplier = _ctx.VectorMultiplier;
+        // Target value for interpolation
+        float targetValue = 1f;
+
+        // Calculate the interpolated value
+        float interpolatedValue = Mathf.Lerp(currentMultiplier, targetValue, _ctx.AnimationBlendSpeed * Time.deltaTime);
+
+        // Assign the interpolated value back to VectorMultiplier
+        _ctx.VectorMultiplier = interpolatedValue;
         //_ctx.AirMovementSmoothValueInAir = movement;
-
-        //_ctx.Animator.SetFloat(_ctx.XVelHash, _ctx.CurrentInputVectorX);
-        //_ctx.Animator.SetFloat(_ctx.YVelHash, _ctx.CurrentInputVectorY);
-
+        Vector3 movement = (_ctx.MoveInputY * _ctx.PlayerBody.forward) + (_ctx.MoveInputX * _ctx.PlayerBody.right);
         _ctx.CharacterController.Move(movement * _ctx.Speed * Time.deltaTime);
     }
 }

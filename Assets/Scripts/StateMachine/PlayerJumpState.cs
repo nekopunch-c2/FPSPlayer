@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerJumpState : PlayerBaseState
+public class PlayerJumpState : PlayerBaseState, IRootState
 {
     //private PlayerBaseState playerBaseState= new PlayerBaseState();
     private Vector3 movementSmooth;
@@ -11,20 +11,24 @@ public class PlayerJumpState : PlayerBaseState
     public PlayerJumpState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory)
         : base(currentContext, playerStateFactory)
     {
-        InitializeSubState();
+        _isRootState = true;
+        
         movementSmooth = _ctx.MovementSmooth;
     }
 
     public override void EnterState()
     {
-        HandleJump();
+        HandleJumpLogic();
+        InitializeSubState();
     }
 
     public override void UpdateState()
     {
-        CheckSwitchStates();
+        Debug.Log("IS JUMPING");
+        HandleGravity();
         HandleJumpUpdate();
         HandleAnim();
+        CheckSwitchStates();
     }
 
     public override void ExitState()
@@ -38,19 +42,19 @@ public class PlayerJumpState : PlayerBaseState
         {
             SwitchState(_factory.Grounded());
         }
-        if (_ctx.PlayerBody.transform.position.y >= (jumpingY + _ctx.JumpHeightPull))
+        /*if (_ctx.PlayerBody.transform.position.y >= (jumpingY + _ctx.JumpHeightPull))
         {
             SwitchState(_factory.InAir());
-        }
+        }*/
     }
 
     public override void InitializeSubState()
     {
-        if (!_ctx.IsMoving && (_ctx.GetPlayerRunning() == 0f || !_ctx.IsRunning))
+        if (!_ctx.IsMoving && !_ctx.IsRunning)
         {
             SetSubState(_factory.Idle());
         }
-        else if (_ctx.IsMoving && (_ctx.GetPlayerRunning() == 0f || !_ctx.IsRunning))
+        else if (_ctx.IsMoving && !_ctx.IsRunning)
         {
             SetSubState(_factory.Walk());
         }
@@ -59,14 +63,12 @@ public class PlayerJumpState : PlayerBaseState
             SetSubState(_factory.Run());
         }
     }
-    void HandleJump()
+    void HandleJumpLogic()
     {
         _ctx.VelocityY = Mathf.Sqrt(_ctx.JumpHeight * -2f * _ctx.Gravity);
-        Debug.Log(_ctx.VelocityY);
         //_ctx.IsJumping = true;
 
         jumpingY = _ctx.PlayerBody.transform.position.y;
-        Debug.Log(jumpingY);
 
         Vector3 movement = (_ctx.MoveInputY * _ctx.PlayerBody.forward) + (_ctx.MoveInputX * _ctx.PlayerBody.right);
 
@@ -85,10 +87,11 @@ public class PlayerJumpState : PlayerBaseState
 
     void HandleJumpUpdate()
     {
-        //_ctx.VelocityY += _ctx.Gravity * Time.deltaTime;
-
-
         _ctx.CharacterController.Move(_ctx.Velocity * Time.deltaTime);
+    }
+    public void HandleGravity()
+    {
+        _ctx.VelocityY += _ctx.Gravity * Time.deltaTime;
     }
 
 }

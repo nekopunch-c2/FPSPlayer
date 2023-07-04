@@ -5,7 +5,11 @@ using UnityEngine;
 public class PlayerCrouchState : PlayerBaseState
 {
     public PlayerCrouchState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory)
-        : base (currentContext, playerStateFactory) { }
+        : base (currentContext, playerStateFactory) 
+    {
+        /*_isRootState = true;
+        InitializeSubState();*/
+    }
     public override void EnterState()
     {
 
