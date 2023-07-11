@@ -13,20 +13,33 @@ public class PlayerGroundedState : PlayerBaseState, IRootState
 
     public override void EnterState()
     {
+        _ctx.IsJumping = false;
+        _ctx.IsFalling = false;
+        
         InitializeSubState();
     }
 
     public override void UpdateState()
     {
+        _ctx.Movement = (_ctx.MoveInputY * _ctx.PlayerBody.forward) + (_ctx.MoveInputX * _ctx.PlayerBody.right);
         
         HandleAnim();
-        OnSlope();
         CheckSwitchStates();
+        //_ctx.IsJumping = true;
     }
 
     public void HandleGravity()
     {
-
+        if (_ctx.VelocityY < 0)
+        {
+            _ctx.VelocityY = -2f;
+        }
+        if (_ctx.OnStairsTagGetSet || _ctx.OnSlopeGetSet)
+        {
+            _ctx.VelocityY += _ctx.Gravity * Time.deltaTime;
+            //_ctx.CharacterController.Move(_ctx.Velocity * _ctx.SlopeAndStairForce * Time.deltaTime);
+            //Debug.Log("on stairs or slope via tag");
+        }
     }
 
     public override void ExitState()
@@ -38,11 +51,17 @@ public class PlayerGroundedState : PlayerBaseState, IRootState
     {
         if (_ctx.PlayerJump())
         {
+
             SwitchState(_factory.Jump());
         }
-        if (!_ctx.IsGrounded && !_ctx.IsJumping)
+        else if (!_ctx.IsGrounded && !_ctx.IsJumping)
         {
-            SwitchState(_factory.InAir());
+            //_ctx.IsJumping = true;
+             SwitchState(_factory.InAir());
+        }
+        else if (_ctx.IsGrounded && _ctx.IsCrouching)
+        {
+            SwitchState(_factory.Crouch());
         }
     }
 
@@ -58,29 +77,26 @@ public class PlayerGroundedState : PlayerBaseState, IRootState
         }
         else
         {
+            
             SetSubState(_factory.Run());
         }
     }
 
     void HandleAnim()
     {
+
+        if (_ctx.InputAllowed)
+        {
+            _ctx.Animator.SetFloat(_ctx.XVelHash, _ctx.CurrentInputVectorX);
+            _ctx.Animator.SetFloat(_ctx.YVelHash, _ctx.CurrentInputVectorY);
+        }
+
         _ctx.Animator.SetBool(_ctx.AnimIDInAir, false);
         _ctx.Animator.SetBool(_ctx.AnimIDLanding, true);
 
         _ctx.Animator.SetBool(_ctx.AnimIDGrounded, true);
+        _ctx.Animator.SetBool(_ctx.AnimIDCrouching, false);
     }
-    private bool OnSlope()
-    {
-        RaycastHit hit;
-
-        if (Physics.Raycast(_ctx.playerBody.position * (_ctx.CharacterController.height / 2), Vector3.down, out hit, _ctx.CharacterController.height / 2 * _ctx.SlopeForceRayLength))
-        {
-            if (hit.normal != Vector3.up)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
+    
 
 }

@@ -4,23 +4,27 @@ using UnityEngine;
 
 public class PlayerRunState : PlayerBaseState
 {
-
+    private float _storedSpeed;
     public PlayerRunState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory)
         : base(currentContext, playerStateFactory) { }
     public override void EnterState()
     {
-        
+        _storedSpeed = _ctx.Speed;
+        _ctx.RunningSpeed = _ctx.Speed * _ctx.SpeedMultiplier;
+        _ctx.Speed = 1f;
     }
 
     public override void UpdateState()
     {
-        CheckSwitchStates();
         HandleRun();
+        CheckSwitchStates();
+        
     }
 
     public override void ExitState()
     {
-
+        _ctx.Speed = _storedSpeed;
+        _ctx.RunningSpeed = 1f;
     }
 
     public override void CheckSwitchStates()
@@ -54,12 +58,11 @@ public class PlayerRunState : PlayerBaseState
         // Assign the interpolated value back to VectorMultiplier
         _ctx.VectorMultiplier = interpolatedValue;
         //calculate the movement direction
-        Vector3 movement = (_ctx.MoveInputY * _ctx.PlayerBody.forward) + (_ctx.MoveInputX * _ctx.PlayerBody.right);
-
+        //Vector3 movement = (_ctx.MoveInputY * _ctx.PlayerBody.forward) + (_ctx.MoveInputX * _ctx.PlayerBody.right);
+        Debug.Log("Should Run ");
         //multiply it by the speed multiplier
-        movement = movement * _ctx.SpeedMultiplier;
+        //_ctx.Movement = _ctx.BaseMovement * _ctx.SpeedMultiplier;
 
-        //use char controller's Move() method to move the player using Movement, Speed and deltaTime
-        _ctx.CharacterController.Move(movement * _ctx.Speed * Time.deltaTime);
+
     }
 }

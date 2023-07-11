@@ -5,30 +5,37 @@ using UnityEngine;
 public class PlayerJumpState : PlayerBaseState, IRootState
 {
     //private PlayerBaseState playerBaseState= new PlayerBaseState();
-    private Vector3 movementSmooth;
-    private float jumpingY;
+    private Vector3 _movementSmooth;
+    private float _jumpingY;
+    private Vector3 _previousVelocityXZ;
 
     public PlayerJumpState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory)
         : base(currentContext, playerStateFactory)
     {
         _isRootState = true;
         
-        movementSmooth = _ctx.MovementSmooth;
+        _movementSmooth = _ctx.MovementSmooth;
     }
 
     public override void EnterState()
     {
+        _ctx.IsJumping = true;
+        _previousVelocityXZ = new Vector3(_ctx.MovementX, 0f, _ctx.MovementZ);
         HandleJumpLogic();
         InitializeSubState();
+        
     }
 
     public override void UpdateState()
     {
-        Debug.Log("IS JUMPING");
+        
+        //_ctx.MovementWalking = (_ctx.MoveInputY * _ctx.PlayerBody.forward) + (_ctx.MoveInputX * _ctx.PlayerBody.right);
+        //_ctx.IsJumping = true;
         HandleGravity();
         HandleJumpUpdate();
         HandleAnim();
         CheckSwitchStates();
+        Debug.Log("JUMPING");
     }
 
     public override void ExitState()
@@ -40,12 +47,8 @@ public class PlayerJumpState : PlayerBaseState, IRootState
     {
         if (_ctx.IsGrounded)
         {
-            SwitchState(_factory.Grounded());
+              SwitchState(_factory.Grounded());
         }
-        /*if (_ctx.PlayerBody.transform.position.y >= (jumpingY + _ctx.JumpHeightPull))
-        {
-            SwitchState(_factory.InAir());
-        }*/
     }
 
     public override void InitializeSubState()
@@ -60,6 +63,7 @@ public class PlayerJumpState : PlayerBaseState, IRootState
         }
         else
         {
+            
             SetSubState(_factory.Run());
         }
     }
@@ -68,26 +72,30 @@ public class PlayerJumpState : PlayerBaseState, IRootState
         _ctx.VelocityY = Mathf.Sqrt(_ctx.JumpHeight * -2f * _ctx.Gravity);
         //_ctx.IsJumping = true;
 
-        jumpingY = _ctx.PlayerBody.transform.position.y;
+        _jumpingY = _ctx.PlayerBody.transform.position.y;
+        _ctx.Animator.CrossFadeInFixedTime("JumpStart", 0.1f);
+        _ctx.Movement = (_ctx.MoveInputY * _ctx.PlayerBody.forward) + (_ctx.MoveInputX * _ctx.PlayerBody.right);
 
-        Vector3 movement = (_ctx.MoveInputY * _ctx.PlayerBody.forward) + (_ctx.MoveInputX * _ctx.PlayerBody.right);
-
-        _ctx.AirMovementSmoothValueInAir = Vector3.SmoothDamp(_ctx.AirMovementSmoothValueInAir, movement, ref movementSmooth, _ctx.AirSmoothment);
+        //_ctx.AirMovementSmoothValueInAir = Vector3.SmoothDamp(_ctx.AirMovementSmoothValueInAir, _ctx.Movement, ref _movementSmooth, _ctx.AirSmoothment);
         //_ctx.CharacterController.Move(_ctx.AirMovementSmoothValueInAir * _ctx.Speed * Time.deltaTime);
 
         //_ctx.CharacterController.Move(_ctx.Velocity * Time.deltaTime);
 
-        
+
     }
 
     void HandleAnim()
     {
-        _ctx.Animator.CrossFadeInFixedTime("JumpStart", 0.1f);
+        //_ctx.Animator.CrossFadeInFixedTime("JumpStart", 0.1f);
     }
 
     void HandleJumpUpdate()
     {
-        _ctx.CharacterController.Move(_ctx.Velocity * Time.deltaTime);
+        //_ctx.CharacterController.Move(_ctx.Velocity * Time.deltaTime);
+        //_ctx.Movement = _ctx.AirMovementSmoothValueInAir;
+        
+
+        //_ctx.AirMovementSmoothValueInAir = Vector3.SmoothDamp(_ctx.AirMovementSmoothValueInAir, _ctx.Movement, ref _movementSmooth, _ctx.AirSmoothment);
     }
     public void HandleGravity()
     {

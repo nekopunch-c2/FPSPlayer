@@ -38,15 +38,9 @@ public abstract class PlayerBaseState
         ExitState();
 
         //newState enters state
-        //newState.EnterState();
-
+        newState.EnterState();
         if (_isRootState)
         {
-            // Call exit on substate as we move to new root state
-            if (_currentSubState != null) _currentSubState.ExitState();
-
-            // Call new States enter state
-            newState.EnterState();
             //switch current state of context
             _ctx.CurrentState = newState;
         }

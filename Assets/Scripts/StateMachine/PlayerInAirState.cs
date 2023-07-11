@@ -13,14 +13,17 @@ public class PlayerInAirState : PlayerBaseState, IRootState
     public override void EnterState()
     {
         //Debug.Log("cui");
+        HandleSlopesAndStairs();
         InitializeSubState();
     }
 
     public override void UpdateState()
     {
+        Debug.Log("IN AIR STATE");
         HandleGravity();
         HandleAnim();
         CheckSwitchStates();
+        //_ctx.Movement = _ctx.AirMovementSmoothValueInAir;
     }
 
     public override void ExitState()
@@ -30,10 +33,11 @@ public class PlayerInAirState : PlayerBaseState, IRootState
 
     public override void CheckSwitchStates()
     {
-        if (_ctx.IsGrounded)
+        if (_ctx.IsGrounded/* && !_ctx.IsJumping*/)
         {
             SwitchState(_factory.Grounded());
         }
+
 
     }
 
@@ -52,10 +56,32 @@ public class PlayerInAirState : PlayerBaseState, IRootState
             SetSubState(_factory.Run());
         }
     }
+
+    void HandleSlopesAndStairs()
+    {
+        RaycastHit hit;
+
+        if (Physics.SphereCast(_ctx.PlayerBody.position * (_ctx.CharacterController.height / 2), 1f, Vector3.down, out hit, _ctx.LengthFromGround))
+        {
+
+            //Debug.Log(hit.distance);
+            if (hit.distance >= 0.01f)
+            {
+                //_ctx.IsFalling = true;
+
+            }
+            else
+            {
+                Debug.Log(hit.distance);
+                //_ctx.IsFalling = false;
+            }
+        }
+    }
+
     public void HandleGravity()
     {
         _ctx.VelocityY += _ctx.Gravity * Time.deltaTime;
-        _ctx.CharacterController.Move(_ctx.Velocity * Time.deltaTime);
+        //_ctx.CharacterController.Move(_ctx.Velocity * Time.deltaTime);
 
     }
 

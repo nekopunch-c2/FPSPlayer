@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class CameraPositionUpdater : MonoBehaviour
 {
-    public Transform playerBody;
-    void Update()
+    public Transform cameraSocket;
+    void FixedUpdate()
     {
-        transform.position = playerBody.transform.position;
+        transform.position = cameraSocket.transform.position;
     }
 }
