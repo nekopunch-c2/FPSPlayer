@@ -17,29 +17,30 @@ public class PlayerWalkState : PlayerBaseState
 
     public override void UpdateState()
     {
-        //Debug.Log("IS WALKING");
+        if (CheckSwitchStates())
+        {
+            return;
+        }
         HandleWalk();
-        CheckSwitchStates();
     }
 
     public override void ExitState()
     {
-        /*_ctx.Speed = x;
-        _ctx.RunningSpeed = x;*/
     }
 
-    public override void CheckSwitchStates()
+    public override bool CheckSwitchStates()
     {
         if (_ctx.IsMoving && _ctx.IsRunning)
         {
             SwitchState(_factory.Run());
+            return true;
         }
         else if (!_ctx.IsMoving)
         {
-            Debug.Log("Entered else for idle");
             SwitchState(_factory.Idle());
-            Debug.Log("Passed idle");
+            return true;
         }
+        return false;
     }
 
     public override void InitializeSubState()

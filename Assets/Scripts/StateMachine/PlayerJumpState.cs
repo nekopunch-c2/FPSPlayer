@@ -8,12 +8,13 @@ public class PlayerJumpState : PlayerBaseState, IRootState
     private Vector3 _movementSmooth;
     private float _jumpingY;
     private Vector3 _previousVelocityXZ;
-
+    private Vector3 _airMovementSmoothValueInAir;
+    private Vector3 _movementInAirSmooth;
     public PlayerJumpState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory)
         : base(currentContext, playerStateFactory)
     {
         _isRootState = true;
-        
+        _airMovementSmoothValueInAir = _ctx.AirMovementSmoothValueInAir;
         _movementSmooth = _ctx.MovementSmooth;
     }
 
@@ -28,13 +29,14 @@ public class PlayerJumpState : PlayerBaseState, IRootState
 
     public override void UpdateState()
     {
-        
-        //_ctx.MovementWalking = (_ctx.MoveInputY * _ctx.PlayerBody.forward) + (_ctx.MoveInputX * _ctx.PlayerBody.right);
-        //_ctx.IsJumping = true;
+
+        if (CheckSwitchStates())
+        {
+            return;
+        }
         HandleGravity();
         HandleJumpUpdate();
         HandleAnim();
-        CheckSwitchStates();
         Debug.Log("JUMPING");
     }
 
@@ -43,12 +45,14 @@ public class PlayerJumpState : PlayerBaseState, IRootState
         
     }
 
-    public override void CheckSwitchStates()
+    public override bool CheckSwitchStates()
     {
         if (_ctx.IsGrounded)
         {
               SwitchState(_factory.Grounded());
+            return true;
         }
+        return false;
     }
 
     public override void InitializeSubState()
@@ -74,7 +78,7 @@ public class PlayerJumpState : PlayerBaseState, IRootState
 
         _jumpingY = _ctx.PlayerBody.transform.position.y;
         _ctx.Animator.CrossFadeInFixedTime("JumpStart", 0.1f);
-        _ctx.Movement = (_ctx.MoveInputY * _ctx.PlayerBody.forward) + (_ctx.MoveInputX * _ctx.PlayerBody.right);
+        //_ctx.Movement = (_ctx.MoveInputY * _ctx.PlayerBody.forward) + (_ctx.MoveInputX * _ctx.PlayerBody.right);
 
         //_ctx.AirMovementSmoothValueInAir = Vector3.SmoothDamp(_ctx.AirMovementSmoothValueInAir, _ctx.Movement, ref _movementSmooth, _ctx.AirSmoothment);
         //_ctx.CharacterController.Move(_ctx.AirMovementSmoothValueInAir * _ctx.Speed * Time.deltaTime);
@@ -93,8 +97,8 @@ public class PlayerJumpState : PlayerBaseState, IRootState
     {
         //_ctx.CharacterController.Move(_ctx.Velocity * Time.deltaTime);
         //_ctx.Movement = _ctx.AirMovementSmoothValueInAir;
-        
-
+        Vector3 movementInAir = (_ctx.MoveInputY * _ctx.PlayerBody.forward) + (_ctx.MoveInputX * _ctx.PlayerBody.right);
+        _ctx.Movement = Vector3.SmoothDamp(_ctx.Movement, movementInAir, ref _movementSmooth, _ctx.AirSmoothment); ;
         //_ctx.AirMovementSmoothValueInAir = Vector3.SmoothDamp(_ctx.AirMovementSmoothValueInAir, _ctx.Movement, ref _movementSmooth, _ctx.AirSmoothment);
     }
     public void HandleGravity()

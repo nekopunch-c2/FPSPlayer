@@ -14,15 +14,20 @@ public class PlayerInAirState : PlayerBaseState, IRootState
     {
         //Debug.Log("cui");
         HandleSlopesAndStairs();
+        
         InitializeSubState();
     }
 
     public override void UpdateState()
     {
         Debug.Log("IN AIR STATE");
+        if (CheckSwitchStates())
+        {
+            return;
+        }
         HandleGravity();
         HandleAnim();
-        CheckSwitchStates();
+        
         //_ctx.Movement = _ctx.AirMovementSmoothValueInAir;
     }
 
@@ -31,14 +36,15 @@ public class PlayerInAirState : PlayerBaseState, IRootState
 
     }
 
-    public override void CheckSwitchStates()
+    public override bool CheckSwitchStates()
     {
         if (_ctx.IsGrounded/* && !_ctx.IsJumping*/)
         {
             SwitchState(_factory.Grounded());
+            return true;
         }
 
-
+        return false;
     }
 
     public override void InitializeSubState()
@@ -67,19 +73,20 @@ public class PlayerInAirState : PlayerBaseState, IRootState
             //Debug.Log(hit.distance);
             if (hit.distance >= 0.01f)
             {
-                //_ctx.IsFalling = true;
+                _ctx.IsFalling = true;
 
             }
             else
             {
                 Debug.Log(hit.distance);
-                //_ctx.IsFalling = false;
+                _ctx.IsFalling = false;
             }
         }
     }
 
     public void HandleGravity()
     {
+        
         _ctx.VelocityY += _ctx.Gravity * Time.deltaTime;
         //_ctx.CharacterController.Move(_ctx.Velocity * Time.deltaTime);
 

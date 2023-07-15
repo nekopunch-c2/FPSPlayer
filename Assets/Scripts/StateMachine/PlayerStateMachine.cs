@@ -25,8 +25,10 @@ public class PlayerStateMachine : MonoBehaviour
     public bool IsJumping { get { return _isJumping; } set { _isJumping = value; } }
     public bool IsCrouching { get { return _isCrouching; } set { _isCrouching = value; } }
     public float StandHeight { get { return _standHeight; } set { _standHeight = value; } }
+    public Vector3 StandCenterAdjusted { get { return _standCenterAdjusted; } set { _standCenterAdjusted = value; } }
     public float CrouchHeight { get { return _crouchHeight; } set { _crouchHeight = value; } }
     public float CrouchSmoothTime { get { return _crouchSmoothTime; } set { _crouchSmoothTime = value; } }
+    public Vector3 CrouchCenterAdjusted { get { return _crouchCenterAdjusted; } set { _crouchCenterAdjusted = value; } }
     public bool CanGoUp { get { return _canGoUp; } set { _canGoUp = value; } }
     public bool IsGrounded { get { return _isGrounded; } set { _isGrounded = value; } }
     public Vector3 AirMovementSmoothValueInAir { get { return _airMovementSmoothValueInAir; } set { _airMovementSmoothValueInAir = value; } }
@@ -42,12 +44,15 @@ public class PlayerStateMachine : MonoBehaviour
     public bool IsFalling { get { return _isFalling; } set { _isFalling = value; } }
     public bool InputAllowed { get { return _inputAllowed; } set { _inputAllowed = value; } }
     public float LengthFromGround { get { return _lengthFromGround; } set { _lengthFromGround = value; } }
+    public bool OnStairsGetSet { get { return OnStairs(); } }
     public bool OnStairsTagGetSet { get { return OnStairsTag(); } }
-    public float SlopeAndStairForce { get { return _slopeAndStairForce; } set { _slopeAndStairForce = value; } }
+    public float GroundedGravity { get { return _groundedGravity; } set { _groundedGravity = value; } }
     public Vector3 Movement { get { return _movement; } set { _movement = value; } }
     public float MovementX { get { return _movement.x; } set { _movement.x = value; } }
     public float MovementZ { get { return _movement.z; } set { _movement.z = value; } }
-
+    public float SlopeForceRayLength { get { return _slopeForceRayLength; } set { _slopeForceRayLength = value; } }
+    public float StairsCheckLength { get { return _stairsCheckLength; } set { _stairsCheckLength = value; } }
+    public Transform CurrentGround { get { return _currentGround; } set { _currentGround = value; } }
 
     //animation
     public Animator Animator { get { return _animator; } }
@@ -149,7 +154,7 @@ public class PlayerStateMachine : MonoBehaviour
     [Tooltip("this value will be used, when in the air, to determine how far the ground is from the point the player is at. Higher values will work for more situations, but extreme ones will consume too many resources")]
     [SerializeField] private float _lengthFromGround = 1f;
     [Tooltip("to prevent the bouncing that happens to most first person controllers when going down slopes or stairs, gravity is multiplied by this value. Higher values work for more situations, but extreme ones risk the player clipping through the floor.")]
-    [SerializeField] private float _slopeAndStairForce = 1f;
+    [SerializeField] private float _groundedGravity = 1f;
     [Tooltip("this value will be used to determine the surface the player is standing on is a slope (using normals).")]
     [SerializeField] private float _slopeForceRayLength = 1f;
 
@@ -181,7 +186,7 @@ public class PlayerStateMachine : MonoBehaviour
     private Vector2 _moveInput;
     private bool _isFalling;
     private bool _hasFired;
-    Vector3 _velocity;
+    public Vector3 _velocity;
     public bool _isJumping;
     [SerializeField] private bool _isGrounded;
     public Vector3 _movement;
@@ -196,8 +201,8 @@ public class PlayerStateMachine : MonoBehaviour
     private bool _canGoUp;
     private RaycastHit _roofCheckInfo;
 
-    Vector3 _crouchCenterAdjusted;
-    Vector3 _standCenterAdjusted;
+    public Vector3 _crouchCenterAdjusted;
+    public Vector3 _standCenterAdjusted;
 
     [Tooltip("")]
     [SerializeField] private float _cameraHeight;
@@ -216,7 +221,8 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField] private float _maxDistance = 0.22f;
     private Vector3 _groundCheckOrigin;
     private RaycastHit _hitInfo;
-    
+    [SerializeField] private LayerMask _groundLayers;
+
 
     //animation
     [Header("Animation")]
@@ -333,10 +339,6 @@ public class PlayerStateMachine : MonoBehaviour
 
     void Update()
     {
-        if (_isJumping)
-        {
-            Debug.Log("_isJumping = true");
-        }
         GroundCheck();
         RoofCheck();
         _currentState.UpdateStates();
@@ -344,11 +346,12 @@ public class PlayerStateMachine : MonoBehaviour
         _moveInput = GetPlayerMovement();
         
         HandleMovement();
-
-        //HandleAnimStateMachine();
         HoldToRun();
         HoldToCrouch();
-        OnSlope();
+        //OnSlope();
+        OnStairs();
+        //OnStairsTag();
+        GroundFarEnough();
         //HandleMovement();
     }
 
@@ -366,10 +369,37 @@ public class PlayerStateMachine : MonoBehaviour
         }
 
     }
+    private bool OnStairs()
+    {
+        if (!_isGrounded && !_isJumping && !_isFalling)
+        {
+            return true;
+        }
 
+        return false;
+    }
+    
+    /*void HandleSlopesAndStairs()
+    {
+        RaycastHit hit;
+
+        if (Physics.SphereCast(transform.position * (_characterController.height / 2), 1f, Vector3.down, out hit, _lengthFromGround))
+        {
+            if (hit.distance >= 0.01f)
+            {
+                _isFalling = true;
+
+            }
+            else
+            {
+                //Debug.Log(hit.distance);
+                _isFalling = false;
+            }
+        }
+    }*/
     void HandleMovement()
     {
-        Vector3 velocityMovementSpeedAndSmoothCombo = _velocity + ((_movement + _airMovementSmoothValueInAir) * _speed * _runningSpeed);
+        Vector3 velocityMovementSpeedAndSmoothCombo = _velocity + (_movement * _speed * _runningSpeed);
         _characterController.Move(velocityMovementSpeedAndSmoothCombo  * Time.deltaTime);
         //_movement = (_moveInput.y * transform.forward) + (_moveInput.x * transform.right);
         //_movementSmoothed = _movement;
@@ -409,7 +439,7 @@ public class PlayerStateMachine : MonoBehaviour
         if (Physics.Raycast(transform.position * (_characterController.height / 2), Vector3.down, out hit, _stairsCheckLength))
         {
             _currentGround = hit.transform;
-            if (!_isJumping && _currentGround.tag == "Stairs" && !_isFalling)
+            if (!_isJumping && _currentGround.tag == "Stairs")
             {
                 //Debug.Log("is on stairs via tag");
                 return true;
@@ -424,20 +454,19 @@ public class PlayerStateMachine : MonoBehaviour
         {
             _hasFired = true;
             RaycastHit hit;
-
             if (Physics.SphereCast(transform.position * (_characterController.height / 2), 1f, Vector3.down, out hit, _lengthFromGround))
             {
-
-                //Debug.Log(hit.distance);
-                if (hit.distance >= 0.001f)
+                
+                Debug.Log(hit.distance);
+                if (hit.distance >= 0.05f)
                 {
-                    //_isFalling = true;
+                    _isFalling = true;
 
                 }
                 else
                 {
                     Debug.Log(hit.distance);
-                    //_isFalling = false;
+                    _isFalling = false;
                 }
             }
         }
@@ -471,14 +500,11 @@ public class PlayerStateMachine : MonoBehaviour
     void GroundCheck()
     {
         _groundCheckOrigin = transform.position + _offset;
-        bool hitFloor = Physics.SphereCast(_groundCheckOrigin, _groundCheckRadius, Vector3.down, out _hitInfo, _maxDistance);
+        bool hitFloor = Physics.SphereCast(_groundCheckOrigin, _groundCheckRadius, Vector3.down, out _hitInfo, _maxDistance, _groundLayers);
 
         if (/*characterController.isGrounded*/ hitFloor)
         {
             _isGrounded = true;
-
-            // Draw a line from the origin to the hit point
-            //Debug.DrawLine(_groundCheckOrigin, _hitInfo.point, Color.yellow);
         }
         else
         {
@@ -540,7 +566,6 @@ public class PlayerStateMachine : MonoBehaviour
         _currentInputVectorForMouse = Vector2.SmoothDamp(_currentInputVectorForMouse, input, ref mouseSmooth, _mouseSmoothment * 0.1f);
         _currentInputVectorForMouse = _currentInputVectorForMouse * _mouseSensitivity;
         return _currentInputVectorForMouse;
-        //return fpsPlayer.Player.Look.ReadValue<Vector2>();
     }
 
     public bool PlayerJump()
@@ -561,14 +586,12 @@ public class PlayerStateMachine : MonoBehaviour
             {
                 if (ctx.started && !_isCrouching)
                 {
-                    //_vectorMultiplier = 0.5f;
                     _isCrouching = true;
                 }
 
                 else if (ctx.started && _isCrouching)
                 {
                     _isCrouching = false;
-                    //_vectorMultiplier = 1f;
                 }
             }
         

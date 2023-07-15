@@ -16,9 +16,11 @@ public class PlayerRunState : PlayerBaseState
 
     public override void UpdateState()
     {
+        if (CheckSwitchStates())
+        {
+            return;
+        }
         HandleRun();
-        CheckSwitchStates();
-        
     }
 
     public override void ExitState()
@@ -27,16 +29,19 @@ public class PlayerRunState : PlayerBaseState
         _ctx.RunningSpeed = 1f;
     }
 
-    public override void CheckSwitchStates()
+    public override bool CheckSwitchStates()
     {
         if (_ctx.IsMoving && !_ctx.IsRunning)
         {
             SwitchState(_factory.Walk());
+            return true;
         }
         else if (!_ctx.IsMoving)
         {
             SwitchState(_factory.Idle());
+            return true;
         }
+        return false;
 
     }
 

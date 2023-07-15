@@ -14,8 +14,10 @@ public class PlayerIdleState : PlayerBaseState
 
     public override void UpdateState()
     {
-        Debug.Log("IS IDLE");
-        CheckSwitchStates();
+        if (CheckSwitchStates())
+        {
+            return;
+        }
         HandleIdle();
     }
 
@@ -24,16 +26,19 @@ public class PlayerIdleState : PlayerBaseState
 
     }
 
-    public override void CheckSwitchStates()
+    public override bool CheckSwitchStates()
     {
         if (_ctx.IsMoving && _ctx.IsRunning)
         {
             SwitchState(_factory.Run());
+            return true;
         }
         else if (_ctx.IsMoving)
         {
             SwitchState(_factory.Walk());
+            return true;
         }
+        return false;
     }
 
     public override void InitializeSubState()

@@ -4,12 +4,13 @@ using UnityEngine;
 
 public class PlayerCrouchState : PlayerBaseState
 {
+    private Vector3 _movementSmooth;
     private float velocityCrouch;
     public PlayerCrouchState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory)
         : base (currentContext, playerStateFactory)
     {
         _isRootState = true;
-
+        _movementSmooth = _ctx.MovementSmooth;
     }
 
     public override void EnterState()
@@ -22,10 +23,14 @@ public class PlayerCrouchState : PlayerBaseState
 
     public override void UpdateState()
     {
+        if (CheckSwitchStates())
+        {
+            return;
+        }
         HandleMovement();
         HandleCrouch();
         HandleAnim();
-        CheckSwitchStates();
+        HandleGravity();
         //_ctx.IsJumping = true;
     }
 
@@ -33,25 +38,28 @@ public class PlayerCrouchState : PlayerBaseState
 
     public override void ExitState()
     {
-        //Debug.Log("Cosito exited grounded");
+        
     }
 
-    public override void CheckSwitchStates()
+    public override bool CheckSwitchStates()
     {
-        if (_ctx.PlayerJump() && _ctx.CanGoUp)
+        if (_ctx.PlayerJump() && _ctx.CanGoUp && !_ctx.IsFalling)
         {
-
             SwitchState(_factory.Jump());
+            return true;
         }
-        else if (!_ctx.IsGrounded && !_ctx.IsJumping)
+        else if (!_ctx.IsGrounded && !_ctx.IsJumping && _ctx.CanGoUp && _ctx.IsFalling && !_ctx.OnStairsTagGetSet && !OnSlope())
         {
             //_ctx.IsJumping = true;
             SwitchState(_factory.InAir());
+            return true;
         }
-        else if (!_ctx.IsJumping && !_ctx.IsCrouching && _ctx.CanGoUp)
+        else if (!_ctx.IsJumping && !_ctx.IsCrouching && _ctx.CanGoUp && !_ctx.IsFalling)
         {
             SwitchState(_factory.Grounded());
+            return true;
         }
+        return false;
     }
 
     public override void InitializeSubState()
@@ -72,18 +80,40 @@ public class PlayerCrouchState : PlayerBaseState
 
     public void HandleGravity()
     {
-        if (_ctx.VelocityY < 0)
+
+        _ctx.VelocityY += _ctx.Gravity * _ctx.GroundedGravity * Time.deltaTime;
+        
+    }
+    private bool OnSlope()
+    {
+        RaycastHit hit;
+
+        if (Physics.Raycast(_ctx.PlayerBody.position * (_ctx.CharacterController.height / 2), Vector3.down, out hit, _ctx.CharacterController.height / 2 * _ctx.SlopeForceRayLength))
         {
-            _ctx.VelocityY = -2f;
+            if (hit.normal != Vector3.up)
+            {
+                return true;
+            }
         }
-        if (_ctx.OnStairsTagGetSet || _ctx.OnSlopeGetSet)
-        {
-            _ctx.VelocityY += _ctx.Gravity * Time.deltaTime;
-            //_ctx.CharacterController.Move(_ctx.Velocity * _ctx.SlopeAndStairForce * Time.deltaTime);
-            //Debug.Log("on stairs or slope via tag");
-        }
+        return false;
     }
 
+    private bool OnStairsTag()
+    {
+
+        RaycastHit hit;
+
+        if (Physics.Raycast(_ctx.PlayerBody.position * (_ctx.CharacterController.height / 2), Vector3.down, out hit, _ctx.StairsCheckLength))
+        {
+            _ctx.CurrentGround = hit.transform;
+            if (!_ctx.IsJumping && _ctx.CurrentGround.tag == "Stairs" && !_ctx.IsFalling)
+            {
+                //Debug.Log("is on stairs via tag");
+                return true;
+            }
+        }
+        return false;
+    }
     void HandleMovement()
     {
         _ctx.Movement = (_ctx.MoveInputY * _ctx.PlayerBody.forward) + (_ctx.MoveInputX * _ctx.PlayerBody.right);
@@ -94,7 +124,7 @@ public class PlayerCrouchState : PlayerBaseState
         float crouching = Mathf.SmoothDamp(_ctx.CharacterController.height, _ctx.CrouchHeight, ref velocityCrouch, _ctx.CrouchSmoothTime);
         _ctx.CharacterController.height = crouching;
 
-        Vector3 crouchingCenter = Vector3.SmoothDamp(_ctx.CharacterController.center, crouchCenterAdjusted, ref MovementSmooth, _ctx.CrouchSmoothTime);
+        Vector3 crouchingCenter = Vector3.SmoothDamp(_ctx.CharacterController.center, _ctx.CrouchCenterAdjusted, ref _movementSmooth, _ctx.CrouchSmoothTime);
         _ctx.CharacterController.center = crouchingCenter;
     }
 
