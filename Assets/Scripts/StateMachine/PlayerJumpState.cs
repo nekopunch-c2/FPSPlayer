@@ -34,8 +34,16 @@ public class PlayerJumpState : PlayerBaseState, IRootState
         {
             return;
         }
+        _ctx.GroundedTimer += Time.deltaTime;
         HandleGravity();
         HandleJumpUpdate();
+        Debug.Log("VelocityY: " + _ctx.VelocityY);
+        Debug.Log("Gravity: " + _ctx.Gravity);
+        
+        if (_ctx.VelocityY < 0.3f && _ctx.VelocityY > -0.3f)
+        {
+            HighestPoint();
+        }
         HandleAnim();
         Debug.Log("JUMPING");
     }
@@ -47,7 +55,7 @@ public class PlayerJumpState : PlayerBaseState, IRootState
 
     public override bool CheckSwitchStates()
     {
-        if (_ctx.IsGrounded)
+        if (_ctx.GroundedTimer >= 0.1f && _ctx.IsGrounded)
         {
               SwitchState(_factory.Grounded());
             return true;
@@ -100,6 +108,12 @@ public class PlayerJumpState : PlayerBaseState, IRootState
         Vector3 movementInAir = (_ctx.MoveInputY * _ctx.PlayerBody.forward) + (_ctx.MoveInputX * _ctx.PlayerBody.right);
         _ctx.Movement = Vector3.SmoothDamp(_ctx.Movement, movementInAir, ref _movementSmooth, _ctx.AirSmoothment); ;
         //_ctx.AirMovementSmoothValueInAir = Vector3.SmoothDamp(_ctx.AirMovementSmoothValueInAir, _ctx.Movement, ref _movementSmooth, _ctx.AirSmoothment);
+    }
+    void HighestPoint()
+    {
+        
+            _ctx.GroundFarEnough();
+        
     }
     public void HandleGravity()
     {

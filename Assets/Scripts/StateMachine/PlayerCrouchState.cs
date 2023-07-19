@@ -43,7 +43,7 @@ public class PlayerCrouchState : PlayerBaseState
 
     public override bool CheckSwitchStates()
     {
-        if (_ctx.PlayerJump() && _ctx.CanGoUp && !_ctx.IsFalling)
+        if (_ctx.PlayerJump && _ctx.CanGoUp && !_ctx.IsFalling)
         {
             SwitchState(_factory.Jump());
             return true;

@@ -13,8 +13,10 @@ public class PlayerInAirState : PlayerBaseState, IRootState
     public override void EnterState()
     {
         //Debug.Log("cui");
+        _ctx.IsCurrentlyGroundedTimer = 0f;
         HandleSlopesAndStairs();
-        
+        _ctx.GroundFarEnough();
+        Debug.Log("ground far enough called");
         InitializeSubState();
     }
 
@@ -38,10 +40,14 @@ public class PlayerInAirState : PlayerBaseState, IRootState
 
     public override bool CheckSwitchStates()
     {
-        if (_ctx.IsGrounded/* && !_ctx.IsJumping*/)
+        if (_ctx.IsGrounded)
         {
-            SwitchState(_factory.Grounded());
-            return true;
+            _ctx.IsCurrentlyGroundedTimer -= Time.deltaTime;
+            if (_ctx.IsCurrentlyGroundedTimer <= 0f)
+            {
+                SwitchState(_factory.Grounded());
+                return true;
+            }
         }
 
         return false;

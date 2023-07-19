@@ -17,7 +17,9 @@ public class PlayerGroundedState : PlayerBaseState, IRootState
     {
         _ctx.IsJumping = false;
         _ctx.IsFalling = false;
-        _ctx.VelocityY = _ctx.Gravity * 0.1f;
+        _ctx.GroundedTimer = 0f;
+        
+        HandleGravity();
         InitializeSubState();
     }
 
@@ -34,30 +36,32 @@ public class PlayerGroundedState : PlayerBaseState, IRootState
         OutOfCrouch();
         HandleAnim();
         //HandleGravity();
-        HandleGravity();
+        
         //_ctx.IsJumping = true;
     }
 
     public void HandleGravity()
     {
-        if(_ctx.OnStairsTagGetSet || OnSlope())
-            _ctx.VelocityY = _ctx.Gravity * _ctx.GroundedGravity;
+        _ctx.VelocityY = _ctx.Gravity * _ctx.GroundedGravity;
     }
 
     public override void ExitState()
     {
         _ctx.VelocityY = 0f;
+        _ctx.Animator.SetBool(_ctx.AnimIDInAir, true);
+        _ctx.Animator.SetBool(_ctx.AnimIDGrounded, false);
+        _ctx.Animator.SetBool(_ctx.AnimIDLanding, false);
     }
 
     public override bool CheckSwitchStates()
     {
-        if (_ctx.PlayerJump() && !_ctx.IsFalling)
+        if (_ctx.PlayerJump && !_ctx.IsFalling)
         {
 
             SwitchState(_factory.Jump());
             return true;
         }
-        else if (!_ctx.IsGrounded && !_ctx.IsJumping && _ctx.IsFalling)
+        else if (!_ctx.IsGrounded && !_ctx.IsJumping && !_ctx.OnStairsTagGetSet && !OnSlope())
         {
             //_ctx.IsJumping = true;
              SwitchState(_factory.InAir());
@@ -73,7 +77,7 @@ public class PlayerGroundedState : PlayerBaseState, IRootState
 
     public override void InitializeSubState()
     {
-        if (!_ctx.IsMoving && (!_ctx.IsRunning))
+        if (!_ctx.IsMoving && !_ctx.IsRunning)
         {
             SetSubState(_factory.Idle());
         }
@@ -92,9 +96,9 @@ public class PlayerGroundedState : PlayerBaseState, IRootState
     {
         RaycastHit hit;
 
-        if (Physics.Raycast(_ctx.PlayerBody.position * (_ctx.CharacterController.height / 2), Vector3.down, out hit, _ctx.CharacterController.height / 2 * _ctx.SlopeForceRayLength))
+        if (Physics.Raycast(_ctx.PlayerBody.position * (_ctx.CharacterController.height / 2), Vector3.down, out hit, _ctx.CharacterController.height / 2 * _ctx.SlopeForceRayLength) )
         {
-            if (hit.normal != Vector3.up)
+            if (hit.normal != Vector3.up && _ctx.IsGrounded)
             {
                 return true;
             }
