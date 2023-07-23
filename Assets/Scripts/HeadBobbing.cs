@@ -14,32 +14,29 @@ public class HeadBobbing : MonoBehaviour
     [SerializeField] private int _standingPriority = 5;
 
     //references
-   // private PlayerMovement _playerMovement;
-   // private PlayerControl _playerControl;
+    private PlayerInputHandler _playerInputHandler;
+    private PlayerStateMachine _playerStateMachine;
 
     void Start()
     {
-        //_playerControl = PlayerControl.Instance;
-        //_playerMovement = GetComponentInParent<PlayerMovement>();
+        _playerInputHandler = GetComponent<PlayerInputHandler>();
+        _playerStateMachine = GetComponent<PlayerStateMachine>();
         // ENSURING REFERENCES ARE PROPERLY ASSIGNED!
-        //if (_playerControl == null)
-            //ebug.LogError("PlayerControl reference is null.");
-
-        //if (_playerMovement == null)
-            //Debug.LogError("PlayerMovement reference is null.");
+        if (_playerInputHandler == null)
+        Debug.LogError("PlayerInputHandler reference is null.");
     }
 
 
     void Update()
     {
 
-        /*if (_playerControl.IsMoving)
+        if (_playerInputHandler.IsMovingInput)
         {
-            if (_playerControl.IsRunning || _playerControl.GetPlayerRunning() > 0)
+            if (_playerInputHandler.IsRunningInput)
             {
                 _runningCam.Priority = _activatePriority;
             }
-            else if (!_playerMovement.isGrounded)
+            else if (!_playerStateMachine.IsGrounded)
             {
                 _notGroundedCam.Priority = _activatePriority;
             }
@@ -57,7 +54,7 @@ public class HeadBobbing : MonoBehaviour
             _walkingCam.Priority = _standingPriority;
             _notGroundedCam.Priority = _standingPriority;
         }
-        */
+        
         
     }
 }

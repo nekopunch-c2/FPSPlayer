@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using NekoSpace;
 
 public class PlayerInputHandler : MonoBehaviour
 {
@@ -15,6 +16,10 @@ public class PlayerInputHandler : MonoBehaviour
     public float CurrentInputVectorYInput { get { return CurrentInputVector.y; } }
     public float CurrentInputVectorXInput { get { return CurrentInputVector.x; } }
     public Vector2 GetPlayerMovementInput { get { return GetPlayerMovement(); } }
+    public Vector2 GetMouseDeltaInput { get { return GetMouseDelta(); } }
+    public CameraRotationDirection RotationDirectionInput { get { return _rotationDirection; } }
+    public float RotationSpeedInput { get { return _rotationSpeed; } }
+    public bool PlayerJumpInput { get { return PlayerJump(); } }
 
     //VARIABLES
     private bool _inputAllowed = false;
@@ -23,8 +28,8 @@ public class PlayerInputHandler : MonoBehaviour
     public bool holdToCrouch;
 
     [SerializeField] private float _controlSmoothment = 0.1f;
-    [SerializeField] private float _mouseSmoothment = 0.1f;
-    [SerializeField] private float _mouseSensitivity;
+    [SerializeField] [Range (0.0f, 5f)] private float _mouseSmoothment = 0.1f;
+    [SerializeField][Range(0.3f, 60f)] private float _mouseSensitivity;
     private Vector2 _airMovementSmoothValueInLand;
 
     private Vector2 _currentInputVectorAir;
@@ -35,6 +40,9 @@ public class PlayerInputHandler : MonoBehaviour
     private bool _isRunning;
     private bool _isCrouching;
     private bool _isMoving;
+
+    private CameraRotationDirection _rotationDirection;
+    private float _rotationSpeed;
 
     private float _vectorMultiplier = 1f;
 
@@ -47,25 +55,32 @@ public class PlayerInputHandler : MonoBehaviour
     
     void Awake()
     {
-        StartCoroutine(DelayInputProcessing(0.1f));
+        StartCoroutine(DelayInputProcessing(2f));
         _fpsPlayer = new FPSPlayer();
-        _fpsPlayer.Player.Run.performed += Run;
-        _fpsPlayer.Player.Run.started += Run;
-        _fpsPlayer.Player.Run.canceled += Run;
 
-        _fpsPlayer.Player.Crouch.performed += Crouch;
-        _fpsPlayer.Player.Crouch.started += Crouch;
-        _fpsPlayer.Player.Crouch.canceled += Crouch;
 
-        _fpsPlayer.Player.Movement.performed += Move;
-        _fpsPlayer.Player.Movement.canceled += Reset;
+            _fpsPlayer.Player.Run.performed += Run;
+            _fpsPlayer.Player.Run.started += Run;
+            _fpsPlayer.Player.Run.canceled += Run;
+
+            _fpsPlayer.Player.Crouch.performed += Crouch;
+            _fpsPlayer.Player.Crouch.started += Crouch;
+            _fpsPlayer.Player.Crouch.canceled += Crouch;
+
+            _fpsPlayer.Player.Movement.performed += Move;
+            _fpsPlayer.Player.Movement.canceled += Reset;
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-       HoldToRun();
-       HoldToCrouch();
+        Debug.Log(_inputAllowed);
+        if (_inputAllowed)
+        {
+            HoldToRun();
+            HoldToCrouch();
+        }
     }
     private IEnumerator DelayInputProcessing(float delaySeconds)
     {
@@ -98,51 +113,83 @@ public class PlayerInputHandler : MonoBehaviour
     {
 
         _isMoving = true;
-        _canAnimate = true;
-        
-
-    }
-    public Vector2 GetPlayerMovement()
-    {
-        Vector2 input = _fpsPlayer.Player.Movement.ReadValue<Vector2>();
-        _currentInputVector = Vector2.SmoothDamp(_currentInputVector, input, ref _airMovementSmoothValueInLand, _controlSmoothment);
-        return _currentInputVector;
-
-    }
-
-    public Vector2 GetMouseDelta()
-    {
-        Vector2 input = _fpsPlayer.Player.Look.ReadValue<Vector2>();
-        Vector2 mouseSmooth = new Vector2(0, 0);
-        _currentInputVectorForMouse = Vector2.SmoothDamp(_currentInputVectorForMouse, input, ref mouseSmooth, _mouseSmoothment * 0.1f);
-        _currentInputVectorForMouse = _currentInputVectorForMouse * _mouseSensitivity;
-        return _currentInputVectorForMouse;
-    }
-
-    public bool PlayerJump()
-    {
-        return _fpsPlayer.Player.Jump.triggered;
-    }
-
-
-
-    public void Crouch(InputAction.CallbackContext ctx)
-    {
-        if (!holdToCrouch)
+        if(_inputAllowed)
         {
-            if (ctx.started && !_isCrouching)
+            _canAnimate = true;
+        }
+    }
+    private Vector2 GetPlayerMovement()
+    {
+        if(_inputAllowed)
+        {
+            Vector2 input = _fpsPlayer.Player.Movement.ReadValue<Vector2>();
+            _currentInputVector = Vector2.SmoothDamp(_currentInputVector, input, ref _airMovementSmoothValueInLand, _controlSmoothment);
+            return _currentInputVector;
+        }
+        return Vector2.zero;
+    }
+
+    private Vector2 GetMouseDelta()
+    {
+        if (_inputAllowed)
+        {
+            Vector2 input = _fpsPlayer.Player.Look.ReadValue<Vector2>() * _mouseSensitivity;
+            Vector2 mouseSmooth = new Vector2(0, 0);
+            _currentInputVectorForMouse = Vector2.SmoothDamp(_currentInputVectorForMouse, input, ref mouseSmooth, _mouseSmoothment * 0.1f);
+
+            // Get the X-component of the smoothed mouse input
+            float xRotation = _currentInputVectorForMouse.x;
+
+            // Determine the direction of rotation (positive, negative or none)
+            if (Mathf.Approximately(xRotation, 0f)  /*xRotation < 20f && xRotation > -20f*/)
             {
-                _isCrouching = true;
+                _rotationDirection = CameraRotationDirection.None;
+            }
+            else
+            {
+                _rotationDirection = xRotation > 0f ? CameraRotationDirection.Right : CameraRotationDirection.Left;
             }
 
-            else if (ctx.started && _isCrouching)
+            // Get the speed of rotation (magnitude of the X-component)
+            _rotationSpeed = Mathf.Abs(xRotation);
+
+            return _currentInputVectorForMouse;
+        }
+        _rotationDirection = CameraRotationDirection.None;
+        return Vector2.zero;
+    }
+
+
+    private bool PlayerJump()
+    {
+        if (_inputAllowed)
+        {
+            return _fpsPlayer.Player.Jump.triggered;
+        }
+        return false;
+    }
+
+
+
+    private void Crouch(InputAction.CallbackContext ctx)
+    {
+        if (_inputAllowed)
+        {
+            if (!holdToCrouch)
             {
-                _isCrouching = false;
+                if (ctx.started && !_isCrouching)
+                {
+                    _isCrouching = true;
+                }
+
+                else if (ctx.started && _isCrouching)
+                {
+                    _isCrouching = false;
+                }
             }
         }
-
     }
-    public float GetPlayerCrouching()
+    private float GetPlayerCrouching()
     {
         return _fpsPlayer.Player.Crouch.ReadValue<float>();
     }
@@ -163,24 +210,27 @@ public class PlayerInputHandler : MonoBehaviour
         }
     }
 
-    public void Run(InputAction.CallbackContext context)
+    private void Run(InputAction.CallbackContext context)
     {
-        if (!holdToRun)
+        if(_inputAllowed)
         {
-            if (context.started && !_isRunning)
+            if (!holdToRun)
             {
-                _isRunning = true;
-                //_vectorMultiplier = 2f;
-            }
+                if (context.started && !_isRunning)
+                {
+                    _isRunning = true;
+                    //_vectorMultiplier = 2f;
+                }
 
-            else if (context.started && _isRunning)
-            {
-                _isRunning = false;
-                //_vectorMultiplier = 1f;
+                else if (context.started && _isRunning)
+                {
+                    _isRunning = false;
+                    //_vectorMultiplier = 1f;
+                }
             }
         }
     }
-    public float GetPlayerRunning()
+    private float GetPlayerRunning()
     {
         return _fpsPlayer.Player.Run.ReadValue<float>();
     }

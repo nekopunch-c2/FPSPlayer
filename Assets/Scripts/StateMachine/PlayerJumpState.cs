@@ -37,15 +37,15 @@ public class PlayerJumpState : PlayerBaseState, IRootState
         _ctx.GroundedTimer += Time.deltaTime;
         HandleGravity();
         HandleJumpUpdate();
-        Debug.Log("VelocityY: " + _ctx.VelocityY);
-        Debug.Log("Gravity: " + _ctx.Gravity);
+        //Debug.Log("VelocityY: " + _ctx.VelocityY);
+        //Debug.Log("Gravity: " + _ctx.Gravity);
         
         if (_ctx.VelocityY < 0.3f && _ctx.VelocityY > -0.3f)
         {
             HighestPoint();
         }
         HandleAnim();
-        Debug.Log("JUMPING");
+        //Debug.Log("JUMPING");
     }
 
     public override void ExitState()
@@ -111,9 +111,7 @@ public class PlayerJumpState : PlayerBaseState, IRootState
     }
     void HighestPoint()
     {
-        
-            _ctx.GroundFarEnough();
-        
+        _ctx.GroundFarEnough();
     }
     public void HandleGravity()
     {

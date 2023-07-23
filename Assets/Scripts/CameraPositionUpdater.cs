@@ -5,7 +5,7 @@ using UnityEngine;
 public class CameraPositionUpdater : MonoBehaviour
 {
     public Transform cameraSocket;
-    void FixedUpdate()
+    void LateUpdate()
     {
         transform.position = cameraSocket.transform.position;
     }

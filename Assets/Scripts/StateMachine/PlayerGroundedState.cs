@@ -1,11 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using NekoSpace;
 
 public class PlayerGroundedState : PlayerBaseState, IRootState
 {
     private float velocityCrouch;
     private Vector3 _movementSmooth;
+
+    private Vector3 lastPlatformPosition;
+    private Transform activePlatform;
+
     public PlayerGroundedState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory)
         : base(currentContext, playerStateFactory) 
     {
@@ -25,7 +30,7 @@ public class PlayerGroundedState : PlayerBaseState, IRootState
 
     public override void UpdateState()
     {
-        Debug.Log("grouned");
+        
         if(CheckSwitchStates())
         {
             return;
@@ -35,6 +40,7 @@ public class PlayerGroundedState : PlayerBaseState, IRootState
         OnSlope();
         OutOfCrouch();
         HandleAnim();
+        MovingPlatform();
         //HandleGravity();
         
         //_ctx.IsJumping = true;
@@ -47,8 +53,8 @@ public class PlayerGroundedState : PlayerBaseState, IRootState
 
     public override void ExitState()
     {
-        _ctx.VelocityY = 0f;
-        _ctx.Animator.SetBool(_ctx.AnimIDInAir, true);
+        
+        
         _ctx.Animator.SetBool(_ctx.AnimIDGrounded, false);
         _ctx.Animator.SetBool(_ctx.AnimIDLanding, false);
     }
@@ -64,7 +70,8 @@ public class PlayerGroundedState : PlayerBaseState, IRootState
         else if (!_ctx.IsGrounded && !_ctx.IsJumping && !_ctx.OnStairsTagGetSet && !OnSlope())
         {
             //_ctx.IsJumping = true;
-             SwitchState(_factory.InAir());
+            _ctx.VelocityY = 0f;
+            SwitchState(_factory.InAir());
             return true;
         }
         else if (_ctx.IsGrounded && _ctx.IsCrouching)
@@ -132,12 +139,41 @@ public class PlayerGroundedState : PlayerBaseState, IRootState
     }
     void HandleAnim()
     {
-
+        
         if (_ctx.InputAllowed)
         {
             _ctx.Animator.SetFloat(_ctx.XVelHash, _ctx.CurrentInputVectorX);
             _ctx.Animator.SetFloat(_ctx.YVelHash, _ctx.CurrentInputVectorY);
         }
+        if (_ctx.InputAllowed)
+        {
+            if (_ctx.RotationDirection != CameraRotationDirection.None)
+            {
+                Debug.Log("turning");
+
+                if (_ctx.GetPlayerMovement == Vector2.zero)
+                {
+                    if (_ctx.RotationDirection == CameraRotationDirection.Left)
+                    {
+
+                        Debug.Log("ciib");
+                        _ctx.Animator.SetBool(_ctx.Turning, true);
+                        _ctx.Animator.SetFloat(_ctx.TurningAngleHash, _ctx.RotationSpeed * -1f);
+                    }
+                    else if (_ctx.RotationDirection == CameraRotationDirection.Right)
+                    {
+                        _ctx.Animator.SetBool(_ctx.Turning, true);
+                        _ctx.Animator.SetFloat(_ctx.TurningAngleHash, _ctx.RotationSpeed);
+                    }
+                }
+            }
+            else
+            {
+                _ctx.Animator.SetBool(_ctx.Turning, false);
+            }
+        }
+        Debug.Log(_ctx.RotationSpeed);
+        
 
         _ctx.Animator.SetBool(_ctx.AnimIDInAir, false);
         _ctx.Animator.SetBool(_ctx.AnimIDLanding, true);
@@ -145,6 +181,37 @@ public class PlayerGroundedState : PlayerBaseState, IRootState
         _ctx.Animator.SetBool(_ctx.AnimIDGrounded, true);
         _ctx.Animator.SetBool(_ctx.AnimIDCrouching, false);
     }
-    
+    void MovingPlatform()
+    {
+        // If the player is standing on a moving platform, parent the player to the platform.
+        if (activePlatform != null)
+        {
+            SetParent(activePlatform);
+        }
+    }
 
+    public void SetParent(Transform newParent)
+    {
+        // Sets "newParent" as the new parent of the child GameObject.
+        _ctx.PlayerBody.SetParent(newParent);
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        Debug.Log("Cui");
+        // Detect if the player collides with a moving platform.
+        if (other.gameObject.CompareTag("MovingPlatform"))
+        {
+            activePlatform = hit.transform;
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        // Unparent the player from the moving platform when they step off it.
+        if (other.transform == activePlatform)
+        {
+            activePlatform = null;
+        }
+    }
 }

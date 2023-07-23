@@ -15,9 +15,11 @@ public class PlayerCrouchState : PlayerBaseState
 
     public override void EnterState()
     {
+        HandleGravity();
+        _ctx.CrouchSpeedMultiplier = .5f;
         _ctx.IsJumping = false;
         _ctx.IsFalling = false;
-
+        _ctx.GroundedTimer = 0f;
         InitializeSubState();
     }
 
@@ -30,7 +32,6 @@ public class PlayerCrouchState : PlayerBaseState
         HandleMovement();
         HandleCrouch();
         HandleAnim();
-        HandleGravity();
         //_ctx.IsJumping = true;
     }
 
@@ -38,7 +39,10 @@ public class PlayerCrouchState : PlayerBaseState
 
     public override void ExitState()
     {
-        
+
+        _ctx.CrouchSpeedMultiplier = 1f;
+        _ctx.Animator.SetBool(_ctx.AnimIDCrouching, false);
+        _ctx.Animator.SetBool(_ctx.AnimIDLanding, false);
     }
 
     public override bool CheckSwitchStates()
@@ -48,13 +52,14 @@ public class PlayerCrouchState : PlayerBaseState
             SwitchState(_factory.Jump());
             return true;
         }
-        else if (!_ctx.IsGrounded && !_ctx.IsJumping && _ctx.CanGoUp && _ctx.IsFalling && !_ctx.OnStairsTagGetSet && !OnSlope())
+        else if (!_ctx.IsGrounded && !_ctx.IsJumping && _ctx.CanGoUp && !_ctx.OnStairsTagGetSet && !OnSlope())
         {
             //_ctx.IsJumping = true;
+            _ctx.VelocityY = 0f;
             SwitchState(_factory.InAir());
             return true;
         }
-        else if (!_ctx.IsJumping && !_ctx.IsCrouching && _ctx.CanGoUp && !_ctx.IsFalling)
+        else if (!_ctx.IsJumping && !_ctx.IsCrouching && _ctx.CanGoUp)
         {
             SwitchState(_factory.Grounded());
             return true;
@@ -80,9 +85,7 @@ public class PlayerCrouchState : PlayerBaseState
 
     public void HandleGravity()
     {
-
-        _ctx.VelocityY += _ctx.Gravity * _ctx.GroundedGravity * Time.deltaTime;
-        
+        _ctx.VelocityY += _ctx.Gravity * _ctx.GroundedGravity;
     }
     private bool OnSlope()
     {
@@ -121,11 +124,9 @@ public class PlayerCrouchState : PlayerBaseState
 
     void HandleCrouch()
     {
-        float crouching = Mathf.SmoothDamp(_ctx.CharacterController.height, _ctx.CrouchHeight, ref velocityCrouch, _ctx.CrouchSmoothTime);
-        _ctx.CharacterController.height = crouching;
+        _ctx.CharacterController.height = Mathf.SmoothDamp(_ctx.CharacterController.height, _ctx.CrouchHeight, ref velocityCrouch, _ctx.CrouchSmoothTime);
 
-        Vector3 crouchingCenter = Vector3.SmoothDamp(_ctx.CharacterController.center, _ctx.CrouchCenterAdjusted, ref _movementSmooth, _ctx.CrouchSmoothTime);
-        _ctx.CharacterController.center = crouchingCenter;
+        _ctx.CharacterController.center = Vector3.SmoothDamp(_ctx.CharacterController.center, _ctx.CrouchCenterAdjusted, ref _movementSmooth, _ctx.CrouchSmoothTime);
     }
 
     void HandleAnim()

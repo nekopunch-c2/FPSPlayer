@@ -13,16 +13,15 @@ public class PlayerInAirState : PlayerBaseState, IRootState
     public override void EnterState()
     {
         //Debug.Log("cui");
+        _ctx.Animator.SetBool(_ctx.AnimIDInAir, true);
         _ctx.IsCurrentlyGroundedTimer = 0f;
         HandleSlopesAndStairs();
         _ctx.GroundFarEnough();
-        Debug.Log("ground far enough called");
         InitializeSubState();
     }
 
     public override void UpdateState()
     {
-        Debug.Log("IN AIR STATE");
         if (CheckSwitchStates())
         {
             return;

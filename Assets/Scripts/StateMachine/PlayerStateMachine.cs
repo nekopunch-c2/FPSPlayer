@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using NekoSpace;
 
 public class PlayerStateMachine : MonoBehaviour
 {
@@ -13,8 +13,10 @@ public class PlayerStateMachine : MonoBehaviour
     //GETSET
     public PlayerBaseState CurrentState { get { return _currentState; } set { _currentState = value; } }
     //basic movement
+    public float CameraAngularSpeed { get { return _cameraAngularSpeed.AngularSpeedY; } }
     public float Speed  { get { return _speed; } set { _speed = value; } }
     public float RunningSpeed { get { return _runningSpeed; } set { _runningSpeed = value; } }
+    public float CrouchedSpeed { get { return _crouchedSpeedMultiplier; } set { _crouchedSpeedMultiplier = value; } }
     public float Gravity { get { return _gravity; } set { _gravity = value; } }
     public float JumpHeight { get { return _jumpHeight; } set { _jumpHeight = value; } }
     public float SpeedMultiplier { get { return _speedMultiplier; } set { _speedMultiplier = value; } }
@@ -23,7 +25,6 @@ public class PlayerStateMachine : MonoBehaviour
     public float VelocityY { get { return _velocity.y; } set { _velocity.y = value; } }
     public Vector3 Velocity { get { return _velocity; } set { _velocity = value; } }
     public bool IsJumping { get { return _isJumping; } set { _isJumping = value; } }
-    public bool IsCrouching { get { return _playerInputHandler.IsCrouchingInput; } set { _playerInputHandler.IsCrouchingInput = value; } }
     public float StandHeight { get { return _standHeight; } set { _standHeight = value; } }
     public Vector3 StandCenterAdjusted { get { return _standCenterAdjusted; } set { _standCenterAdjusted = value; } }
     public float CrouchHeight { get { return _crouchHeight; } set { _crouchHeight = value; } }
@@ -37,18 +38,26 @@ public class PlayerStateMachine : MonoBehaviour
     public Transform PlayerBody { get { return _playerBody; } }
     public float MoveInputX { get { return _moveInput.x; } set { _moveInput.x = value; } }
     public float MoveInputY { get { return _moveInput.y; } set { _moveInput.y = value; } }
+    //player input handler
+    public bool IsCrouching { get { return _playerInputHandler.IsCrouchingInput; } set { _playerInputHandler.IsCrouchingInput = value; } }
     public bool IsRunning { get { return _playerInputHandler.IsRunningInput; } set { _playerInputHandler.IsRunningInput = value; } }
     public bool IsMoving { get { return _playerInputHandler.IsMovingInput; } set { _playerInputHandler.IsMovingInput = value; } }
     public float VectorMultiplier { get { return _playerInputHandler.VectorMultiplierInput; } set { _playerInputHandler.VectorMultiplierInput = value; } }
+    public bool InputAllowed { get { return _playerInputHandler.InputAllowedInput; } set { _playerInputHandler.InputAllowedInput = value; } }
+    public bool PlayerJump { get { return _playerInputHandler.PlayerJumpInput; } }
+    public Vector2 GetPlayerMovement { get { return _playerInputHandler.GetPlayerMovementInput; } }
+    public float RotationSpeed { get { return _playerInputHandler.RotationSpeedInput; } }
+    public CameraRotationDirection RotationDirectionRight { get { return CameraRotationDirection.Right; } }
+    public CameraRotationDirection RotationDirectionLeft { get { return CameraRotationDirection.Left; } }
+    public CameraRotationDirection RotationDirection { get { return _playerInputHandler.RotationDirectionInput; } }
+
     public bool OnSlopeGetSet { get { return OnSlope(); } }
     public bool IsFalling { get { return _isFalling; } set { _isFalling = value; } }
-    public bool InputAllowed { get { return _playerInputHandler.InputAllowedInput; } set { _playerInputHandler.InputAllowedInput = value; } }
     public float LengthFromGround { get { return _lengthFromGround; } set { _lengthFromGround = value; } }
     public float GroundedTimer { get { return _groundedTimer; } set { _groundedTimer = value; } }
     public float IsCurrentlyGroundedTimer { get { return _isCurrentlyGroundedTimer; } set { _isCurrentlyGroundedTimer = value; } }
     public bool OnStairsGetSet { get { return OnStairs(); } }
     public bool OnStairsTagGetSet { get { return OnStairsTag(); } }
-    public bool PlayerJump { get { return _playerInputHandler.PlayerJump(); } }
     public float GroundedGravity { get { return _groundedGravity; } set { _groundedGravity = value; } }
     public Vector3 Movement { get { return _movement; } set { _movement = value; } }
     public float MovementX { get { return _movement.x; } set { _movement.x = value; } }
@@ -56,7 +65,6 @@ public class PlayerStateMachine : MonoBehaviour
     public float SlopeForceRayLength { get { return _slopeForceRayLength; } set { _slopeForceRayLength = value; } }
     public float StairsCheckLength { get { return _stairsCheckLength; } set { _stairsCheckLength = value; } }
     public Transform CurrentGround { get { return _currentGround; } set { _currentGround = value; } }
-    public Vector2 GetPlayerMovement { get { return _playerInputHandler.GetPlayerMovement(); } }
 
     //animation
     public Animator Animator { get { return _animator; } }
@@ -68,7 +76,12 @@ public class PlayerStateMachine : MonoBehaviour
     public int AnimIDCrouching { get { return _animIDCrouching; } set { _animIDCrouching = value; } }
     public int XVelHash { get { return _xVelHash; } set { _xVelHash = value; } }
     public int YVelHash { get { return _yVelHash; } set { _yVelHash = value; } }
+    public int AngularSpeedY { get { return _angularSpeedY; } set { _angularSpeedY = value; } }
     public float AnimationBlendSpeed  { get { return _animationBlendSpeed; } set { _animationBlendSpeed = value; } }
+    public int Turning { get { return _turning; } set { _turning = value; } }
+    public int TurningRight { get { return _turningRight; } set { _turningRight = value; } }
+    public int TurnAngle { get { return _turnAngle; } set { _turnAngle = value; } }
+    public int TurningAngleHash { get { return _turningAngleHash; } set { _turningAngleHash = value; } }
 
     public bool CanAnimate { get { return _playerInputHandler.CanAnimateInput; } set { _playerInputHandler.CanAnimateInput = value; } }
 
@@ -83,13 +96,17 @@ public class PlayerStateMachine : MonoBehaviour
     private int _animIDInAir;
     private int _animIDLanding;
     private int _animIDCrouching;
+    private int _turningRight;
+    private int _turning;
 
     private int _xVelHash;
     private int _yVelHash;
 
+    private int _angularSpeedY;
+
     private int _turningAngleHash;
     private int _hitDistance;
-    private int _turningLeftHash;
+    private int _turnAngle;
 
     private float _animationBlend;
 
@@ -148,6 +165,7 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField] private float _speedMultiplier;
 
     [SerializeField] private float _runningSpeed;
+    [SerializeField] private float _crouchedSpeedMultiplier;
     [SerializeField] private float _groundedOffset = -0.14f;
     [Tooltip("the 'speed' value will be multiplied by this value when crouching is toggled.")]
     [SerializeField] private float _crouchSpeedMultiplier;
@@ -272,8 +290,9 @@ public class PlayerStateMachine : MonoBehaviour
     public bool isTurning { get; set; }
 
     //REFERENCES
-    public PlayerInputHandler _playerInputHandler;
+    private PlayerInputHandler _playerInputHandler;
     private CharacterController _characterController;
+    private CameraAngularSpeed _cameraAngularSpeed;
 
     void Awake()
     {
@@ -283,7 +302,7 @@ public class PlayerStateMachine : MonoBehaviour
         _states = new PlayerStateFactory(this);
         _currentState = _states.Grounded();
         _currentState.EnterState();
-
+        _cameraAngularSpeed = GameObject.FindWithTag("CameraManager").GetComponent<CameraAngularSpeed>();
         if (_playerInputHandler == null)
             Debug.LogError("States reference is null.");
         //
@@ -327,7 +346,7 @@ public class PlayerStateMachine : MonoBehaviour
     }
     void HandleMovement()
     {
-        Vector3 velocityMovementSpeedAndSmoothCombo = _velocity + (_movement * _speed * _runningSpeed);
+        Vector3 velocityMovementSpeedAndSmoothCombo = _velocity + (_movement * (_speed * _runningSpeed * _crouchedSpeedMultiplier));
         _characterController.Move(velocityMovementSpeedAndSmoothCombo * Time.deltaTime);
     }
     void RoofCheck()
@@ -415,7 +434,7 @@ public class PlayerStateMachine : MonoBehaviour
             {
                 
                 _animator.SetFloat(_hitDistance, hit.distance);
-                Debug.Log("hit.distance: " + hit.distance);
+                //Debug.Log("hit.distance: " + hit.distance);
                 
                 /*if (hit.distance >= 0.05f)
                 {
@@ -447,7 +466,8 @@ public class PlayerStateMachine : MonoBehaviour
         _turningAngleHash = Animator.StringToHash("turnAngle_velocity");
 
 
-        _turningLeftHash = Animator.StringToHash("left_velocity");
+        _turning = Animator.StringToHash("TurningLeft");
+        _turningRight = Animator.StringToHash("TurningRight");
 
         _animIDCrouching = Animator.StringToHash("Crouching");
 

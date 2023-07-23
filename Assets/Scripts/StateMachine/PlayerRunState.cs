@@ -9,9 +9,9 @@ public class PlayerRunState : PlayerBaseState
         : base(currentContext, playerStateFactory) { }
     public override void EnterState()
     {
-        _storedSpeed = _ctx.Speed;
+        //_storedSpeed = _ctx.Speed;
         _ctx.RunningSpeed = _ctx.Speed * _ctx.SpeedMultiplier;
-        _ctx.Speed = 1f;
+        //_ctx.Speed = 1f;
     }
 
     public override void UpdateState()
@@ -25,7 +25,7 @@ public class PlayerRunState : PlayerBaseState
 
     public override void ExitState()
     {
-        _ctx.Speed = _storedSpeed;
+        //_ctx.Speed = _storedSpeed;
         _ctx.RunningSpeed = 1f;
     }
 

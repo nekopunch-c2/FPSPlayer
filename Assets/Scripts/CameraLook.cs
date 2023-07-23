@@ -25,7 +25,7 @@ public class CameraLook : MonoBehaviour
     [SerializeField] private Transform _playerBody;
 
     private float _desiredRotation;
-    //private PlayerControl _playerControl;
+    private PlayerInputHandler _playerInputHandler;
     private bool _isRotating = false;
     private float _cinemachineTargetPitch;
     private float _cinemachineTargetYaw;
@@ -33,7 +33,7 @@ public class CameraLook : MonoBehaviour
 
     void Awake()
     {
-        //_playerControl = PlayerControl.Instance;
+        _playerInputHandler = GetComponent<PlayerInputHandler>();
         Cursor.lockState = CursorLockMode.Locked;
     }
     private void LateUpdate()
@@ -42,23 +42,24 @@ public class CameraLook : MonoBehaviour
     }
     
 
-    public Quaternion CameraRotation()
+    public void CameraRotation()
     {
-        //_cinemachineTargetYaw += _playerControl.GetMouseDelta().x * rotationSpeed;
-       // _cinemachineTargetPitch += _playerControl.GetMouseDelta().y * rotationSpeed * -1f;
-        //_rotationVelocity = _playerControl.GetMouseDelta().x * rotationSpeed;
+        _cinemachineTargetYaw += _playerInputHandler.GetMouseDeltaInput.x * rotationSpeed * Time.deltaTime;
+        _cinemachineTargetPitch += _playerInputHandler.GetMouseDeltaInput.y * rotationSpeed * -1f * Time.deltaTime;
+        _rotationVelocity = _playerInputHandler.GetMouseDeltaInput.x * rotationSpeed;
         _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
 
         
         _forward.transform.localRotation = Quaternion.Euler(_cinemachineTargetPitch, _cinemachineTargetYaw, 0.0f);
 
-        return _forward.rotation;
+        // rotate to face input direction relative to camera position
+        transform.Rotate(Vector3.up * _playerInputHandler.GetMouseDeltaInput.x * rotationSpeed * Time.deltaTime);
     }
 
 
     public void RotateLeftAndRight()
     {
-        _playerBody.transform.Rotate(Vector3.up * _rotationVelocity);
+        transform.Rotate(Vector3.up * _cinemachineTargetYaw);
     }
 
     private static float ClampAngle(float lfAngle, float lfMin, float lfMax)

@@ -6,7 +6,7 @@ public class Rotation : MonoBehaviour
 {
     public Transform cameraTargetTransform; // The transform of the target object to follow
 
-    private void Update()
+    private void LateUpdate()
     {
         // Check if the target transform is assigned
         if (cameraTargetTransform != null)
