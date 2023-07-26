@@ -8,8 +8,6 @@ public class PlayerGroundedState : PlayerBaseState, IRootState
     private float velocityCrouch;
     private Vector3 _movementSmooth;
 
-    private Vector3 lastPlatformPosition;
-    private Transform activePlatform;
 
     public PlayerGroundedState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory)
         : base(currentContext, playerStateFactory) 
@@ -53,8 +51,8 @@ public class PlayerGroundedState : PlayerBaseState, IRootState
 
     public override void ExitState()
     {
-        
-        
+
+        _ctx.Animator.SetBool(_ctx.Turning, false);
         _ctx.Animator.SetBool(_ctx.AnimIDGrounded, false);
         _ctx.Animator.SetBool(_ctx.AnimIDLanding, false);
     }
@@ -65,6 +63,11 @@ public class PlayerGroundedState : PlayerBaseState, IRootState
         {
 
             SwitchState(_factory.Jump());
+            return true;
+        }
+        else if (_ctx.GetPlayerClimb && _ctx.OnLadder && !_ctx.IsFalling)
+        {
+            SwitchState(_factory.OnLadder());
             return true;
         }
         else if (!_ctx.IsGrounded && !_ctx.IsJumping && !_ctx.OnStairsTagGetSet && !OnSlope())
@@ -139,7 +142,7 @@ public class PlayerGroundedState : PlayerBaseState, IRootState
     }
     void HandleAnim()
     {
-        
+        Debug.Log(_ctx.RotationDirection);
         if (_ctx.InputAllowed)
         {
             _ctx.Animator.SetFloat(_ctx.XVelHash, _ctx.CurrentInputVectorX);
@@ -147,32 +150,29 @@ public class PlayerGroundedState : PlayerBaseState, IRootState
         }
         if (_ctx.InputAllowed)
         {
-            if (_ctx.RotationDirection != CameraRotationDirection.None)
+            if (_ctx.RotationDirection != CameraRotationDirection.None && _ctx.GetPlayerMovement == Vector2.zero)
             {
-                Debug.Log("turning");
-
-                if (_ctx.GetPlayerMovement == Vector2.zero)
+                if (_ctx.RotationDirection == CameraRotationDirection.Left)
                 {
-                    if (_ctx.RotationDirection == CameraRotationDirection.Left)
-                    {
-
-                        Debug.Log("ciib");
-                        _ctx.Animator.SetBool(_ctx.Turning, true);
-                        _ctx.Animator.SetFloat(_ctx.TurningAngleHash, _ctx.RotationSpeed * -1f);
-                    }
-                    else if (_ctx.RotationDirection == CameraRotationDirection.Right)
-                    {
-                        _ctx.Animator.SetBool(_ctx.Turning, true);
-                        _ctx.Animator.SetFloat(_ctx.TurningAngleHash, _ctx.RotationSpeed);
-                    }
+                                         //Debug.Log("ciib");
+                    _ctx.Animator.SetBool(_ctx.Turning, true);
+                    _ctx.Animator.SetFloat(_ctx.TurningAngleHash, _ctx.RotationSpeed * -1f);
                 }
+                else if (_ctx.RotationDirection == CameraRotationDirection.Right)
+                {
+                    _ctx.Animator.SetBool(_ctx.Turning, true);
+                    _ctx.Animator.SetFloat(_ctx.TurningAngleHash, _ctx.RotationSpeed);
+                }
+
             }
             else
             {
                 _ctx.Animator.SetBool(_ctx.Turning, false);
             }
+            
+
         }
-        Debug.Log(_ctx.RotationSpeed);
+        //Debug.Log(_ctx.RotationSpeed);
         
 
         _ctx.Animator.SetBool(_ctx.AnimIDInAir, false);
@@ -184,34 +184,13 @@ public class PlayerGroundedState : PlayerBaseState, IRootState
     void MovingPlatform()
     {
         // If the player is standing on a moving platform, parent the player to the platform.
-        if (activePlatform != null)
+        if (_ctx.ActivePlatform != null)
         {
-            SetParent(activePlatform);
+            _ctx.SetParent(_ctx.ActivePlatform);
         }
     }
 
-    public void SetParent(Transform newParent)
-    {
-        // Sets "newParent" as the new parent of the child GameObject.
-        _ctx.PlayerBody.SetParent(newParent);
-    }
 
-    void OnTriggerEnter(Collider other)
-    {
-        Debug.Log("Cui");
-        // Detect if the player collides with a moving platform.
-        if (other.gameObject.CompareTag("MovingPlatform"))
-        {
-            activePlatform = hit.transform;
-        }
-    }
 
-    void OnTriggerExit(Collider other)
-    {
-        // Unparent the player from the moving platform when they step off it.
-        if (other.transform == activePlatform)
-        {
-            activePlatform = null;
-        }
-    }
+
 }

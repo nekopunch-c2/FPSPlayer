@@ -53,7 +53,10 @@ public class CameraLook : MonoBehaviour
         _forward.transform.localRotation = Quaternion.Euler(_cinemachineTargetPitch, _cinemachineTargetYaw, 0.0f);
 
         // rotate to face input direction relative to camera position
-        transform.Rotate(Vector3.up * _playerInputHandler.GetMouseDeltaInput.x * rotationSpeed * Time.deltaTime);
+        //transform.Rotate(Vector3.up * _playerInputHandler.GetMouseDeltaInput.x * rotationSpeed * Time.deltaTime);
+        float yRotation = _forward.rotation.eulerAngles.y;
+        Quaternion cameraRotation = Quaternion.Euler(transform.rotation.eulerAngles.x, yRotation, transform.rotation.eulerAngles.z);
+        transform.rotation = cameraRotation;
     }
 
 

@@ -8,6 +8,9 @@ TagManager:
   - CameraFollow
   - ArmsAndHead
   - CameraManager
+  - MovingPlatform
+  - PlayerRoot
+  - Ladder
   layers:
   - Default
   - TransparentFX

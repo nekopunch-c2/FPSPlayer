@@ -64,7 +64,6 @@ public class PlayerRunState : PlayerBaseState
         _ctx.VectorMultiplier = interpolatedValue;
         //calculate the movement direction
         //Vector3 movement = (_ctx.MoveInputY * _ctx.PlayerBody.forward) + (_ctx.MoveInputX * _ctx.PlayerBody.right);
-        Debug.Log("Should Run ");
         //multiply it by the speed multiplier
         //_ctx.Movement = _ctx.BaseMovement * _ctx.SpeedMultiplier;
 

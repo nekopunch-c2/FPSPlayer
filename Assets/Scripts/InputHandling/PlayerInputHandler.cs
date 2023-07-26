@@ -20,12 +20,15 @@ public class PlayerInputHandler : MonoBehaviour
     public CameraRotationDirection RotationDirectionInput { get { return _rotationDirection; } }
     public float RotationSpeedInput { get { return _rotationSpeed; } }
     public bool PlayerJumpInput { get { return PlayerJump(); } }
+    public bool GetPlayerClimbInput { get { return _isReadyToClimb; } set { _isReadyToClimb = value; } }
 
     //VARIABLES
     private bool _inputAllowed = false;
     private bool _canAnimate = false; //makes it so that when it's true after a few seconds from start, animations can play
     public bool holdToRun;
     public bool holdToCrouch;
+
+    private bool _isReadyToClimb;
 
     [SerializeField] private float _controlSmoothment = 0.1f;
     [SerializeField] [Range (0.0f, 5f)] private float _mouseSmoothment = 0.1f;
@@ -75,11 +78,19 @@ public class PlayerInputHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(_inputAllowed);
+        Debug.Log(_isReadyToClimb);
         if (_inputAllowed)
         {
             HoldToRun();
             HoldToCrouch();
+        }
+        if (GetPlayerClimb())
+        {
+            _isReadyToClimb = true;
+        }
+        else
+        {
+            _isReadyToClimb = false;
         }
     }
     private IEnumerator DelayInputProcessing(float delaySeconds)
@@ -141,7 +152,7 @@ public class PlayerInputHandler : MonoBehaviour
             float xRotation = _currentInputVectorForMouse.x;
 
             // Determine the direction of rotation (positive, negative or none)
-            if (Mathf.Approximately(xRotation, 0f)  /*xRotation < 20f && xRotation > -20f*/)
+            if (/*Mathf.Approximately(xRotation, 0f)*/  xRotation < 10f && xRotation > -10f)
             {
                 _rotationDirection = CameraRotationDirection.None;
             }
@@ -169,7 +180,14 @@ public class PlayerInputHandler : MonoBehaviour
         return false;
     }
 
-
+    private bool GetPlayerClimb()
+    {
+        if(_inputAllowed)
+        {
+            return _fpsPlayer.Player.Climb.triggered;
+        }
+        return false;
+    }
 
     private void Crouch(InputAction.CallbackContext ctx)
     {

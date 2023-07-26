@@ -48,6 +48,11 @@ public class PlayerInAirState : PlayerBaseState, IRootState
                 return true;
             }
         }
+        else if (_ctx.OnLadder && _ctx.GetPlayerClimb)
+        {
+            SwitchState(_factory.OnLadder());
+            return true;
+        }
 
         return false;
     }
@@ -58,6 +63,7 @@ public class PlayerInAirState : PlayerBaseState, IRootState
         {
             SetSubState(_factory.Idle());
         }
+
         else if (_ctx.IsMoving && !_ctx.IsRunning)
         {
             SetSubState(_factory.Walk());
@@ -83,7 +89,7 @@ public class PlayerInAirState : PlayerBaseState, IRootState
             }
             else
             {
-                Debug.Log(hit.distance);
+               // Debug.Log(hit.distance);
                 _ctx.IsFalling = false;
             }
         }

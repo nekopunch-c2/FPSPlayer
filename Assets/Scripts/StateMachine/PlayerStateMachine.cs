@@ -14,6 +14,7 @@ public class PlayerStateMachine : MonoBehaviour
     public PlayerBaseState CurrentState { get { return _currentState; } set { _currentState = value; } }
     //basic movement
     public float CameraAngularSpeed { get { return _cameraAngularSpeed.AngularSpeedY; } }
+    public bool OnLadder { get { return _onLadder; } set { _onLadder = value; } }
     public float Speed  { get { return _speed; } set { _speed = value; } }
     public float RunningSpeed { get { return _runningSpeed; } set { _runningSpeed = value; } }
     public float CrouchedSpeed { get { return _crouchedSpeedMultiplier; } set { _crouchedSpeedMultiplier = value; } }
@@ -38,7 +39,10 @@ public class PlayerStateMachine : MonoBehaviour
     public Transform PlayerBody { get { return _playerBody; } }
     public float MoveInputX { get { return _moveInput.x; } set { _moveInput.x = value; } }
     public float MoveInputY { get { return _moveInput.y; } set { _moveInput.y = value; } }
+    public Transform ActivePlatform { get { return _activePlatform; } set { _activePlatform = value; } }
+
     //player input handler
+    public bool GetPlayerClimb { get { return _playerInputHandler.GetPlayerClimbInput; } set { _playerInputHandler.GetPlayerClimbInput = value; } }
     public bool IsCrouching { get { return _playerInputHandler.IsCrouchingInput; } set { _playerInputHandler.IsCrouchingInput = value; } }
     public bool IsRunning { get { return _playerInputHandler.IsRunningInput; } set { _playerInputHandler.IsRunningInput = value; } }
     public bool IsMoving { get { return _playerInputHandler.IsMovingInput; } set { _playerInputHandler.IsMovingInput = value; } }
@@ -82,6 +86,7 @@ public class PlayerStateMachine : MonoBehaviour
     public int TurningRight { get { return _turningRight; } set { _turningRight = value; } }
     public int TurnAngle { get { return _turnAngle; } set { _turnAngle = value; } }
     public int TurningAngleHash { get { return _turningAngleHash; } set { _turningAngleHash = value; } }
+    public int OnLadderHash { get { return _onLadderHash; } set { _onLadderHash = value; } }
 
     public bool CanAnimate { get { return _playerInputHandler.CanAnimateInput; } set { _playerInputHandler.CanAnimateInput = value; } }
 
@@ -98,6 +103,7 @@ public class PlayerStateMachine : MonoBehaviour
     private int _animIDCrouching;
     private int _turningRight;
     private int _turning;
+    private int _onLadderHash;
 
     private int _xVelHash;
     private int _yVelHash;
@@ -131,15 +137,17 @@ public class PlayerStateMachine : MonoBehaviour
         get { return _instance; }
     }*/
 
-    
+
 
     //private CharacterAnimation characterAnimation;
 
     //PLAYER MOVEMENT
     //private CharacterController characterController;
 
-
-
+    //reorder
+    private Transform _activePlatform;
+    private bool _aboveLadder;
+    private bool _belowLadder;
 
     //stairs
     [Header("Stairs And Slopes")]
@@ -163,7 +171,7 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField] private float _jumpHeight = 2f;
     [Tooltip("the 'speed' value will be multiplied by this value when running is toggled.")]
     [SerializeField] private float _speedMultiplier;
-
+    [SerializeField] private Transform _playerRoot;
     [SerializeField] private float _runningSpeed;
     [SerializeField] private float _crouchedSpeedMultiplier;
     [SerializeField] private float _groundedOffset = -0.14f;
@@ -172,7 +180,8 @@ public class PlayerStateMachine : MonoBehaviour
     [Tooltip("how smooth movement in the air should be. This is used both for in air movement as well as for keeping momentum")]
     [SerializeField] private float _airSmoothment = 0.6f;
     [Tooltip("Transform representing the player's body")]
-    [SerializeField] private Transform _playerBody; 
+    [SerializeField] private Transform _playerBody;
+    [SerializeField] private bool _onLadder;
 
     //private basic movement
     private Vector3 _movementSmooth = Vector3.zero;
@@ -372,7 +381,57 @@ public class PlayerStateMachine : MonoBehaviour
 
         return false;
     }
-    
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("MovingPlatform"))
+        {
+            _activePlatform = other.transform;
+        }
+        if (other.gameObject.CompareTag("Ladder"))
+        {
+            _onLadder = true;
+        }
+        if (other.gameObject.CompareTag("AboveLadder"))
+        {
+            //lerp player to ladder place
+            //above ladder true
+            _aboveLadder = true;
+        }
+        if (other.gameObject.CompareTag("BelowLadder"))
+        {
+            //lerp player to ladder place
+            //below ladder true
+            _belowLadder = true;
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        // Unparent the player from the moving platform when they step off it.
+        if (other.transform == _activePlatform)
+        {
+            _activePlatform = null;
+            SetParent(_playerRoot);
+        }
+        if (_onLadder)
+        {
+            _onLadder = false;
+        }
+        if (_aboveLadder)
+        {
+            _aboveLadder = false;
+        }
+        if (_belowLadder)
+        {
+            _belowLadder = false;
+        }
+    }
+
+    public void SetParent(Transform newParent)
+    {
+        // Sets "newParent" as the new parent of the child GameObject.
+        transform.SetParent(newParent, true);
+    }
     /*void HandleSlopesAndStairs()
     {
         RaycastHit hit;
@@ -391,7 +450,7 @@ public class PlayerStateMachine : MonoBehaviour
             }
         }
     }*/
-    
+
 
 
     private bool OnSlope()
@@ -476,6 +535,7 @@ public class PlayerStateMachine : MonoBehaviour
         _animIDInAir = Animator.StringToHash("InAir");
         _animIDLanding = Animator.StringToHash("Landed");
         _hitDistance = Animator.StringToHash("hitDistance");
+        _onLadderHash = Animator.StringToHash("OnLadder");
     }
     void GroundCheck()
     {

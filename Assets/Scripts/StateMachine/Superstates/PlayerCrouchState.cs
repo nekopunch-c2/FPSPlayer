@@ -52,6 +52,7 @@ public class PlayerCrouchState : PlayerBaseState
             SwitchState(_factory.Jump());
             return true;
         }
+        
         else if (!_ctx.IsGrounded && !_ctx.IsJumping && _ctx.CanGoUp && !_ctx.OnStairsTagGetSet && !OnSlope())
         {
             //_ctx.IsJumping = true;
