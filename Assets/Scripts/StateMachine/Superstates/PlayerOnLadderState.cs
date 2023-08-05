@@ -49,6 +49,10 @@ public class PlayerOnLadderState : PlayerBaseState, IRootState
             SwitchState(_factory.Grounded());
             return true;
         }
+        else if (_ctx.OnLadder && _ctx.AboveLadder && _ctx.GetPlayerClimb)
+        {
+            SwitchState(_factory.FromLadderTransition());
+        }
         else if (!_ctx.IsJumping && !_ctx.OnLadder)
         {
             //_ctx.IsJumping = true;
@@ -89,7 +93,6 @@ public class PlayerOnLadderState : PlayerBaseState, IRootState
         _ctx.Animator.SetBool(_ctx.OnLadderHash, true);
         if (_ctx.InputAllowed)
         {
-            _ctx.Animator.SetFloat(_ctx.XVelHash, _ctx.CurrentInputVectorX);
             _ctx.Animator.SetFloat(_ctx.YVelHash, _ctx.CurrentInputVectorY);
         }
         

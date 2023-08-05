@@ -28,7 +28,7 @@ public class PlayerIdleState : PlayerBaseState
 
     public override bool CheckSwitchStates()
     {
-        if (_ctx.IsMoving && _ctx.IsRunning)
+        if (_ctx.IsMoving && _ctx.IsRunning && !_ctx.IsTooTired)
         {
             SwitchState(_factory.Run());
             return true;
@@ -56,5 +56,10 @@ public class PlayerIdleState : PlayerBaseState
 
         // Assign the interpolated value back to VectorMultiplier
         _ctx.VectorMultiplier = interpolatedValue;
+
+        if (_ctx.StaminaGetSet != _ctx.MaxStamina)
+        {
+            _ctx.StaminaGetSet += _ctx.StaminaDecIncSpeedGetSet * Time.deltaTime;
+        }
     }
 }

@@ -30,7 +30,7 @@ public class PlayerWalkState : PlayerBaseState
 
     public override bool CheckSwitchStates()
     {
-        if (_ctx.IsMoving && _ctx.IsRunning)
+        if (_ctx.IsMoving && _ctx.IsRunning && !_ctx.IsTooTired)
         {
             SwitchState(_factory.Run());
             return true;
@@ -62,5 +62,10 @@ public class PlayerWalkState : PlayerBaseState
         //_ctx.AirMovementSmoothValueInAir = movement;
         //Vector3 movement = (_ctx.MoveInputY * _ctx.PlayerBody.forward) + (_ctx.MoveInputX * _ctx.PlayerBody.right);
         //_ctx.CharacterController.Move(_ctx.Movement * _ctx.Speed * Time.deltaTime);
+        if (_ctx.StaminaGetSet != _ctx.MaxStamina)
+        {
+            _ctx.StaminaGetSet += _ctx.StaminaDecIncSpeedGetSet * Time.deltaTime;
+        }
+
     }
 }

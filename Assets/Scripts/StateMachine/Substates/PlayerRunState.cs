@@ -31,11 +31,13 @@ public class PlayerRunState : PlayerBaseState
 
     public override bool CheckSwitchStates()
     {
-        if (_ctx.IsMoving && !_ctx.IsRunning)
+        if ((_ctx.IsMoving && !_ctx.IsRunning) || _ctx.IsTooTired)
         {
+
             SwitchState(_factory.Walk());
             return true;
         }
+
         else if (!_ctx.IsMoving)
         {
             SwitchState(_factory.Idle());
@@ -52,21 +54,12 @@ public class PlayerRunState : PlayerBaseState
 
     void HandleRun()
     {
-        // Current _vectorMultiplier value
         float currentMultiplier = _ctx.VectorMultiplier;
-        // Target value for interpolation
         float targetValue = 2f;
-
-        // Calculate the interpolated value
         float interpolatedValue = Mathf.Lerp(currentMultiplier, targetValue, _ctx.AnimationBlendSpeed * Time.deltaTime);
-
-        // Assign the interpolated value back to VectorMultiplier
         _ctx.VectorMultiplier = interpolatedValue;
-        //calculate the movement direction
-        //Vector3 movement = (_ctx.MoveInputY * _ctx.PlayerBody.forward) + (_ctx.MoveInputX * _ctx.PlayerBody.right);
-        //multiply it by the speed multiplier
-        //_ctx.Movement = _ctx.BaseMovement * _ctx.SpeedMultiplier;
 
+        _ctx.StaminaGetSet -= _ctx.StaminaDecIncSpeedGetSet * Time.deltaTime;
 
     }
 }

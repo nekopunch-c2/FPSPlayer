@@ -48,11 +48,11 @@ public class PlayerInAirState : PlayerBaseState, IRootState
                 return true;
             }
         }
-        else if (_ctx.OnLadder && _ctx.GetPlayerClimb)
-        {
-            SwitchState(_factory.OnLadder());
-            return true;
-        }
+        //else if (_ctx.OnLadder && _ctx.GetPlayerClimb)
+        //{
+        //    SwitchState(_factory.OnLadder());
+        //    return true;
+        //}
 
         return false;
     }

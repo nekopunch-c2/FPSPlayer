@@ -11,6 +11,12 @@ TagManager:
   - MovingPlatform
   - PlayerRoot
   - Ladder
+  - TopOfLadder
+  - BottomOfLadder
+  - TopOfLadderPos
+  - BottomOfLadderPos
+  - TopOfLadderGetDownPos
+  - BottomOfLadderGetDownPos
   layers:
   - Default
   - TransparentFX

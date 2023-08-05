@@ -34,7 +34,7 @@ public class PlayerGroundedState : PlayerBaseState, IRootState
             return;
         }
         _ctx.Movement = (_ctx.MoveInputY * _ctx.PlayerBody.forward) + (_ctx.MoveInputX * _ctx.PlayerBody.right);
-        Debug.Log("Is falling equals " + _ctx.IsFalling);
+        //Debug.Log("Is falling equals " + _ctx.IsFalling);
         OnSlope();
         OutOfCrouch();
         HandleAnim();
@@ -65,9 +65,9 @@ public class PlayerGroundedState : PlayerBaseState, IRootState
             SwitchState(_factory.Jump());
             return true;
         }
-        else if (_ctx.GetPlayerClimb && _ctx.OnLadder && !_ctx.IsFalling)
+        else if (_ctx.GetPlayerClimb && (_ctx.AboveLadder || _ctx.BelowLadder) && !_ctx.IsFalling)
         {
-            SwitchState(_factory.OnLadder());
+            SwitchState(_factory.LadderTransition());
             return true;
         }
         else if (!_ctx.IsGrounded && !_ctx.IsJumping && !_ctx.OnStairsTagGetSet && !OnSlope())

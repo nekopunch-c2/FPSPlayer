@@ -9,7 +9,9 @@ enum PlayerStates
     jump,
     grounded,
     inAir,
-    onLadder
+    onLadder,
+    ladderTranistion,
+    fromLadderTransition
 }
 
 public class PlayerStateFactory
@@ -28,6 +30,8 @@ public class PlayerStateFactory
         _states[PlayerStates.grounded] = new PlayerGroundedState(_context, this);
         _states[PlayerStates.inAir] = new PlayerInAirState(_context, this);
         _states[PlayerStates.onLadder] = new PlayerOnLadderState(_context, this);
+        _states[PlayerStates.ladderTranistion] = new PlayerLadderTransitionState(_context, this);
+        _states[PlayerStates.fromLadderTransition] = new PlayerFromLadderTransitionState(_context, this);
     }
 
     public PlayerBaseState Idle()
@@ -63,5 +67,13 @@ public class PlayerStateFactory
     {
         return _states[PlayerStates.onLadder];
     }
+    public PlayerBaseState LadderTransition()
+    {
+        return _states[PlayerStates.ladderTranistion];
+    }
 
+    public PlayerBaseState FromLadderTransition()
+    {
+        return _states[PlayerStates.fromLadderTransition];
+    }
 }

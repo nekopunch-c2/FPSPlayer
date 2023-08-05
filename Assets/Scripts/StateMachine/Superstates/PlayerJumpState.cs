@@ -60,11 +60,11 @@ public class PlayerJumpState : PlayerBaseState, IRootState
               SwitchState(_factory.Grounded());
             return true;
         }
-        else if (_ctx.OnLadder && _ctx.GetPlayerClimb)
-        {
-            SwitchState(_factory.OnLadder());
-            return true;
-        }
+        //else if (_ctx.OnLadder && _ctx.GetPlayerClimb)
+        //{
+        //    SwitchState(_factory.OnLadder());
+        //    return true;
+        //}
         return false;
     }
 

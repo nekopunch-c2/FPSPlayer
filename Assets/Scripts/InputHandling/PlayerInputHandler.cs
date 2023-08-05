@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using NekoSpace;
 
-public class PlayerInputHandler : MonoBehaviour
+public class PlayerInputHandler : MonoBehaviour, ICameraRotationBehavior
 {
     //GETSET
     public bool IsRunningInput { get { return _isRunning; } set { _isRunning = value; } }
@@ -78,7 +78,6 @@ public class PlayerInputHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(_isReadyToClimb);
         if (_inputAllowed)
         {
             HoldToRun();
@@ -140,7 +139,7 @@ public class PlayerInputHandler : MonoBehaviour
         return Vector2.zero;
     }
 
-    private Vector2 GetMouseDelta()
+    public Vector2 GetMouseDelta()
     {
         if (_inputAllowed)
         {

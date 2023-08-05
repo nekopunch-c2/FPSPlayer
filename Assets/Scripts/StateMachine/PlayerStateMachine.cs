@@ -12,9 +12,16 @@ public class PlayerStateMachine : MonoBehaviour
 
     //GETSET
     public PlayerBaseState CurrentState { get { return _currentState; } set { _currentState = value; } }
+    public PlayerStateFactory States { get { return _states; } set { _states = value; } }
     //basic movement
     public float CameraAngularSpeed { get { return _cameraAngularSpeed.AngularSpeedY; } }
     public bool OnLadder { get { return _onLadder; } set { _onLadder = value; } }
+    public bool AboveLadder { get { return _aboveLadder; } set { _aboveLadder = value; } }
+    public bool BelowLadder { get { return _belowLadder; } set { _belowLadder = value; } }
+    public Transform PlayerAboveLadderClimbingPos { get { return playerAboveLadderClimbingPos; } }
+    public Transform PlayerBelowLadderClimbingPos { get { return playerBelowLadderClimbingPos; } }
+    public Transform PlayerAboveLadderGetDownPos { get { return playerAboveLadderGetDownPos; } }
+    public Transform PlayerBelowLadderGetDownPos { get { return playerBelowLadderGetDownPos; } }
     public float Speed  { get { return _speed; } set { _speed = value; } }
     public float RunningSpeed { get { return _runningSpeed; } set { _runningSpeed = value; } }
     public float CrouchedSpeed { get { return _crouchedSpeedMultiplier; } set { _crouchedSpeedMultiplier = value; } }
@@ -36,10 +43,17 @@ public class PlayerStateMachine : MonoBehaviour
     public Vector3 AirMovementSmoothValueInAir { get { return _airMovementSmoothValueInAir; } set { _airMovementSmoothValueInAir = value; } }
     public Vector3 MovementSmooth { get { return _movementSmooth; } set { _movementSmooth = value; } }
     public CharacterController CharacterController { get { return _characterController; } }
-    public Transform PlayerBody { get { return _playerBody; } }
+    public Transform PlayerBody { get { return _playerBody; } set { _playerBody = value; } }
+    public Vector3 PlayerBodyPosition { get { return _playerBody.position; } set { _playerBody.position = value; } }
     public float MoveInputX { get { return _moveInput.x; } set { _moveInput.x = value; } }
     public float MoveInputY { get { return _moveInput.y; } set { _moveInput.y = value; } }
     public Transform ActivePlatform { get { return _activePlatform; } set { _activePlatform = value; } }
+    //stamina
+    public float StaminaGetSet { get { return Stamina; } set { Stamina = value; } }
+    public float MaxStaminaGet { get { return MaxStamina; } set { MaxStamina = value; } }
+    public float StaminaDecIncSpeedGetSet { get { return StaminaDecIncSpeed; } set { StaminaDecIncSpeed = value; } }
+    public bool ShouldUseStaminaGet { get { return ShouldUseStamina; } }
+    public bool IsTooTired { get { return _isTooTired; } }
 
     //player input handler
     public bool GetPlayerClimb { get { return _playerInputHandler.GetPlayerClimbInput; } set { _playerInputHandler.GetPlayerClimbInput = value; } }
@@ -146,8 +160,6 @@ public class PlayerStateMachine : MonoBehaviour
 
     //reorder
     private Transform _activePlatform;
-    private bool _aboveLadder;
-    private bool _belowLadder;
 
     //stairs
     [Header("Stairs And Slopes")]
@@ -161,7 +173,15 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField] private float _slopeForceRayLength = 1f;
 
 
-
+    [Header("Ladders")]
+    public Transform playerAboveLadderClimbingPos;
+    public Transform playerBelowLadderClimbingPos;
+    public Transform playerAboveLadderGetDownPos;
+    public Transform playerBelowLadderGetDownPos;
+    private bool _aboveLadder;
+    private bool _belowLadder;
+    [SerializeField] private bool _onLadder;
+    private Transform _currentLadder;
 
     [Header("Basic Movement")]
     [SerializeField] private float _speed = 10f;
@@ -181,8 +201,7 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField] private float _airSmoothment = 0.6f;
     [Tooltip("Transform representing the player's body")]
     [SerializeField] private Transform _playerBody;
-    [SerializeField] private bool _onLadder;
-
+    
     //private basic movement
     private Vector3 _movementSmooth = Vector3.zero;
     private Vector3 _airMovementSmoothValueInAir;
@@ -198,6 +217,13 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField] private float _groundedTimer = 0f;
     [SerializeField] private float _isCurrentlyGroundedTimer = 0f;
 
+    [Header("Stamina")]
+    public float Stamina = 10f;
+    public float MaxStamina = 10f;
+    public float StaminaDecIncSpeed = 2f;
+    public bool ShouldUseStamina = false;
+    private bool _isTooTired = false;
+
     //crouching
     [Header("Crouching")]
     [Tooltip("")]
@@ -212,7 +238,7 @@ public class PlayerStateMachine : MonoBehaviour
 
     [Tooltip("")]
     [SerializeField] private float _cameraHeight;
-    [Tooltip("")]
+    [Tooltip("time of transition to crouch")]
     [SerializeField] private float _crouchSmoothTime = 1f;
     private float _velocityCrouch;
     private float _velocityCrouchOther;
@@ -234,41 +260,6 @@ public class PlayerStateMachine : MonoBehaviour
     [Header("Animation")]
     [SerializeField] private float _animationBlendSpeed = 1.5f;
 
-
-    Vector3 movementVectorForAnim;
-
-
-    private Transform cameraTransform;
-
-    //CAMERA LOOK
-    //[SerializeField] private Transform playerBody;
-
-
-    [SerializeField] private Transform forward;
-
-    public float rotationSpeed = 1.0f;
-
-    public float rotationSpeedForBody = 1.0f;
-
-    private bool isRotating = false;
-
-
-    private float _cinemachineTargetPitch;
-    private float _cinemachineTargetYaw;
-
-    private float _rotationVelocity;
-
-    [Tooltip("How far in degrees can you move the camera up")]
-    public float TopClamp = 90.0f;
-    [Tooltip("How far in degrees can you move the camera down")]
-    public float BottomClamp = -90.0f;
-
-    private float desiredRotation;
-
-    public float rotationThresholdDunno = 360f;
-
-    //ROTATION TO HORIZON
-    [SerializeField] private GameObject player;
 
     
 
@@ -341,22 +332,36 @@ public class PlayerStateMachine : MonoBehaviour
 
     void Update()
     {
-        
         GroundCheck();
         RoofCheck();
         _currentState.UpdateStates();
         Debug.Log(_currentState);
         _moveInput = GetPlayerMovement;
-        //OnSlope();
         OnStairs();
         OnStairsTag();
-        //GroundFarEnough();
         HandleMovement();
+        if (ShouldUseStamina)
+        {
+            if (Stamina <= 0f)
+            {
+                _isTooTired = true;
+                
+            }
+            if (Stamina > 1f)
+            {
+                _isTooTired = false;
+            }
+        }
+
     }
     void HandleMovement()
     {
         Vector3 velocityMovementSpeedAndSmoothCombo = _velocity + (_movement * (_speed * _runningSpeed * _crouchedSpeedMultiplier));
-        _characterController.Move(velocityMovementSpeedAndSmoothCombo * Time.deltaTime);
+        if (_currentState != _states.LadderTransition() && _currentState != _states.FromLadderTransition())
+        {
+            _characterController.Move(velocityMovementSpeedAndSmoothCombo * Time.deltaTime);
+        }
+
     }
     void RoofCheck()
     {
@@ -381,6 +386,14 @@ public class PlayerStateMachine : MonoBehaviour
 
         return false;
     }
+    Transform FindWithTag(Transform root, string tag)
+    {
+        foreach (Transform t in root.GetComponentsInChildren<Transform>())
+        {
+            if (t.CompareTag(tag)) return t;
+        }
+        return null;
+    }
     void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("MovingPlatform"))
@@ -391,17 +404,44 @@ public class PlayerStateMachine : MonoBehaviour
         {
             _onLadder = true;
         }
-        if (other.gameObject.CompareTag("AboveLadder"))
+        if (other.gameObject.CompareTag("TopOfLadder"))
         {
-            //lerp player to ladder place
+            //interpolate player to ladder place
             //above ladder true
             _aboveLadder = true;
+            _currentLadder = other.transform.parent;
+            //playerAboveStairsClimbingPos = currentLadder.transform.Find("TopOfLadderPos");
+            playerAboveLadderClimbingPos = FindWithTag(_currentLadder, "TopOfLadderPos");
+            playerAboveLadderGetDownPos = FindWithTag(_currentLadder, "TopOfLadderGetDownPos");
+            if (playerAboveLadderClimbingPos == null)
+            {
+                // Do something with the found child GameObject
+                Debug.Log("Not found child with tag: " + "TopOfLadderPos");
+            }
+            if (playerAboveLadderGetDownPos == null)
+            {
+                // Do something with the found child GameObject
+                Debug.Log("Not found child with tag: " + "TopOfLadderGetDownPos");
+            }
         }
-        if (other.gameObject.CompareTag("BelowLadder"))
+        if (other.gameObject.CompareTag("BottomOfLadder"))
         {
-            //lerp player to ladder place
+            //interpolate player to ladder place
             //below ladder true
             _belowLadder = true;
+            _currentLadder = other.transform.parent;
+            playerBelowLadderClimbingPos = FindWithTag(_currentLadder, "BottomOfLadderPos");
+            playerBelowLadderGetDownPos = FindWithTag(_currentLadder, "BottomOfLadderGetDownPos");
+            if (playerBelowLadderClimbingPos == null)
+            {
+                // Do something with the found child GameObject
+                Debug.Log("Not found child with tag: " + "BottomOfLadderPos");
+            }
+            if (playerBelowLadderGetDownPos == null)
+            {
+                // Do something with the found child GameObject
+                Debug.Log("Not found child with tag: " + "BottomOfLadderGetDownPos");
+            }
         }
     }
 
@@ -413,15 +453,15 @@ public class PlayerStateMachine : MonoBehaviour
             _activePlatform = null;
             SetParent(_playerRoot);
         }
-        if (_onLadder)
+        if (other.gameObject.CompareTag("Ladder"))
         {
             _onLadder = false;
         }
-        if (_aboveLadder)
+        if (other.gameObject.CompareTag("TopOfLadder"))
         {
             _aboveLadder = false;
         }
-        if (_belowLadder)
+        if (other.gameObject.CompareTag("BottomOfLadder"))
         {
             _belowLadder = false;
         }
