@@ -13,6 +13,8 @@ public class PlayerStateMachine : MonoBehaviour
     //GETSET
     public PlayerBaseState CurrentState { get { return _currentState; } set { _currentState = value; } }
     public PlayerStateFactory States { get { return _states; } set { _states = value; } }
+    //groundcheck
+    public bool IsGrounded { get { return _isGrounded; } set { _isGrounded = value; } }
     //basic movement
     public float CameraAngularSpeed { get { return _cameraAngularSpeed.AngularSpeedY; } }
     public bool OnLadder { get { return _onLadder; } set { _onLadder = value; } }
@@ -39,7 +41,6 @@ public class PlayerStateMachine : MonoBehaviour
     public float CrouchSmoothTime { get { return _crouchSmoothTime; } set { _crouchSmoothTime = value; } }
     public Vector3 CrouchCenterAdjusted { get { return _crouchCenterAdjusted; } set { _crouchCenterAdjusted = value; } }
     public bool CanGoUp { get { return _canGoUp; } set { _canGoUp = value; } }
-    public bool IsGrounded { get { return _isGrounded; } set { _isGrounded = value; } }
     public Vector3 AirMovementSmoothValueInAir { get { return _airMovementSmoothValueInAir; } set { _airMovementSmoothValueInAir = value; } }
     public Vector3 MovementSmooth { get { return _movementSmooth; } set { _movementSmooth = value; } }
     public CharacterController CharacterController { get { return _characterController; } }
@@ -254,6 +255,7 @@ public class PlayerStateMachine : MonoBehaviour
     private Vector3 _groundCheckOrigin;
     private RaycastHit _hitInfo;
     [SerializeField] private LayerMask _groundLayers;
+    Vector3 _spherePosition;
 
 
     //animation
@@ -589,8 +591,8 @@ public class PlayerStateMachine : MonoBehaviour
         {
             _isGrounded = false;
         }*/
-        Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - _groundedOffset, transform.position.z);
-        _isGrounded = Physics.CheckSphere(spherePosition, _groundCheckRadius, _groundLayers, QueryTriggerInteraction.Ignore);
+        _spherePosition = new Vector3(transform.position.x, transform.position.y - _groundedOffset, transform.position.z);
+        _isGrounded = Physics.CheckSphere(_spherePosition, _groundCheckRadius, _groundLayers, QueryTriggerInteraction.Ignore);
 
     }
 

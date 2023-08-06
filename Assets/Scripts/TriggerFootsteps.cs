@@ -5,7 +5,6 @@ using UnityEngine;
 public class TriggerFootsteps : MonoBehaviour
 {
     public FootstepSounds FootstepSounds;
-    public LayerMask groundLayers;
 
     void Start()
     {
@@ -14,6 +13,6 @@ public class TriggerFootsteps : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-
+        Debug.Log("hit floor");
     }
 }
