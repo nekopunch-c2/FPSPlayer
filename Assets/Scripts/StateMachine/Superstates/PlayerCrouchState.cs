@@ -6,6 +6,8 @@ public class PlayerCrouchState : PlayerBaseState
 {
     private Vector3 _movementSmooth;
     private float velocityCrouch;
+    private bool _canGoUp;
+
     public PlayerCrouchState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory)
         : base (currentContext, playerStateFactory)
     {
@@ -29,6 +31,7 @@ public class PlayerCrouchState : PlayerBaseState
         {
             return;
         }
+        RoofCheck();
         HandleMovement();
         HandleCrouch();
         HandleAnim();
@@ -47,20 +50,20 @@ public class PlayerCrouchState : PlayerBaseState
 
     public override bool CheckSwitchStates()
     {
-        if (_ctx.PlayerJump && _ctx.CanGoUp && !_ctx.IsFalling)
+        if (_ctx.PlayerJump && _canGoUp && !_ctx.IsFalling)
         {
             SwitchState(_factory.Jump());
             return true;
         }
         
-        else if (!_ctx.IsGrounded && !_ctx.IsJumping && _ctx.CanGoUp && !_ctx.OnStairsTagGetSet && !OnSlope())
+        else if (!_ctx.IsGrounded && !_ctx.IsJumping && _canGoUp && !_ctx.OnStairsTagGetSet && !OnSlope())
         {
             //_ctx.IsJumping = true;
             _ctx.VelocityY = 0f;
             SwitchState(_factory.InAir());
             return true;
         }
-        else if (!_ctx.IsJumping && !_ctx.IsCrouching && _ctx.CanGoUp)
+        else if (!_ctx.IsJumping && !_ctx.IsCrouching && _canGoUp)
         {
             SwitchState(_factory.Grounded());
             return true;
@@ -121,6 +124,20 @@ public class PlayerCrouchState : PlayerBaseState
     void HandleMovement()
     {
         _ctx.Movement = (_ctx.MoveInputY * _ctx.PlayerBody.forward) + (_ctx.MoveInputX * _ctx.PlayerBody.right);
+    }
+    void RoofCheck()
+    {
+        Ray ray = new Ray(_ctx.PlayerBody.position, _ctx.PlayerBody.up);
+        if (Physics.Raycast(ray, out RaycastHit roofCheckInfo, _ctx.RoofCheckDistance, _ctx.RoofLayers, QueryTriggerInteraction.Ignore))
+        {
+            _canGoUp = false;
+            Debug.DrawRay(_ctx.PlayerBody.position, _ctx.PlayerBody.up * _ctx.RoofCheckDistance);
+        }
+        else
+        {
+            _canGoUp = true;
+        }
+
     }
 
     void HandleCrouch()

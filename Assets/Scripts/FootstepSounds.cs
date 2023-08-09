@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
+[RequireComponent(typeof(AudioSource))]
 public class FootstepSounds : MonoBehaviour
 {
     //gcheck
@@ -11,6 +13,7 @@ public class FootstepSounds : MonoBehaviour
     [SerializeField] private float _maxDistance = 0.22f;
     private Vector3 _groundCheckOrigin;
     private RaycastHit _groundInfo;
+    public AudioSource _audioSource;
 
     [Tooltip("Should terrain sounds be blended when the player is on multiple textures at the same time")]
     public bool BlendTerrainSounds;
@@ -40,9 +43,9 @@ public class FootstepSounds : MonoBehaviour
         AnimationEventReciever.OnLandStep -= LandStep;  
     }
 
-    void Update()
+    void Awake()
     {
-        Debug.DrawRay(transform.position + new Vector3(0, 0.5f * _charController.height + 0.5f * _charController.radius, 0), Vector3.down, Color.blue);
+        _audioSource = GetComponent<AudioSource>();
     }
     private void Footstep()
     {
@@ -53,7 +56,17 @@ public class FootstepSounds : MonoBehaviour
                 fromFootstep = true;
                 StartCoroutine(PlayFootstepFromRenderer(renderer));
                 texInList = false;
-                AudioSource.PlayClipAtPoint(_footstepDecided, transform.TransformPoint(_charController.center), FootstepAudioVolume);
+                _audioSource.PlayOneShot(_footstepDecided, FootstepAudioVolume);
+            }
+            else if (_groundInfo.collider.TryGetComponent<Terrain>(out Terrain terrain))
+            {
+                fromFootstep = true;
+                StartCoroutine(PlayFootstepSoundFromTerrain(terrain, _groundInfo.point));
+                texInList = false;
+                if (!BlendTerrainSounds)
+                {
+                    _audioSource.PlayOneShot(_footstepDecided, FootstepAudioVolume);
+                }
             }
         }
         
@@ -68,9 +81,100 @@ public class FootstepSounds : MonoBehaviour
                 fromFootstep = false;
                 StartCoroutine(PlayFootstepFromRenderer(renderer));
                 texInList = false;
-                AudioSource.PlayClipAtPoint(_footstepDecided, transform.TransformPoint(_charController.center), FootstepAudioVolume);
+                _audioSource.PlayOneShot(_footstepDecided, FootstepAudioVolume);
+            }
+            else if (_groundInfo.collider.TryGetComponent<Terrain>(out Terrain terrain))
+            {
+                StartCoroutine(PlayFootstepSoundFromTerrain(terrain, _groundInfo.point));
+                texInList = false;
+                _audioSource.PlayOneShot(_footstepDecided, FootstepAudioVolume);
             }
         }
+
+    }
+    private IEnumerator PlayFootstepSoundFromTerrain(Terrain Terrain, Vector3 HitPoint)
+    {
+        Vector3 terrainPosition = HitPoint - Terrain.transform.position;
+        Vector3 splatMapPosition = new Vector3(
+            terrainPosition.x / Terrain.terrainData.size.x,
+            0,
+            terrainPosition.z / Terrain.terrainData.size.z
+        );
+
+        int x = Mathf.FloorToInt(splatMapPosition.x * Terrain.terrainData.alphamapWidth);
+        int z = Mathf.FloorToInt(splatMapPosition.z * Terrain.terrainData.alphamapHeight);
+
+        float[,,] alphaMap = Terrain.terrainData.GetAlphamaps(x, z, 1, 1);
+
+        if (!BlendTerrainSounds)
+        {
+            int primaryIndex = 0;
+            for (int i = 1; i < alphaMap.Length; i++)
+            {
+                if (alphaMap[0, 0, i] > alphaMap[0, 0, primaryIndex])
+                {
+                    primaryIndex = i;
+                }
+            }
+
+            foreach (TextureSound textureSound in TextureSounds)
+            {
+                
+                if (textureSound.Albedo == Terrain.terrainData.terrainLayers[primaryIndex].diffuseTexture)
+                {
+                    if (fromFootstep)
+                    {
+                        Debug.Log("cui");
+                        _footstepDecided = GetClipFromTextureSound(textureSound, true);
+                    }
+                    else
+                    {
+                        _footstepDecided = GetClipFromTextureSound(textureSound, false);
+
+                    }
+                    yield return null;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            List<AudioClip> clips = new List<AudioClip>();
+            int clipIndex = 0;
+            for (int i = 0; i < alphaMap.Length; i++)
+            {
+                if (alphaMap[0, 0, i] > 0)
+                {
+                    foreach (TextureSound textureSound in TextureSounds)
+                    {
+                        if (textureSound.Albedo == Terrain.terrainData.terrainLayers[i].diffuseTexture)
+                        {
+                            if(fromFootstep)
+                            {
+                                AudioClip clip = GetClipFromTextureSound(textureSound, true);
+                                _audioSource.PlayOneShot(clip, alphaMap[0, 0, i]);
+                                clips.Add(clip);
+                                clipIndex++;
+                                break;
+                            }
+                            else
+                            {
+                                AudioClip clip = GetClipFromTextureSound(textureSound, false);
+                                _audioSource.PlayOneShot(clip, alphaMap[0, 0, i]);
+                                clips.Add(clip);
+                                clipIndex++;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            float longestClip = clips.Max(clip => clip.length);
+
+                yield return new WaitForSeconds(longestClip);
+            }
+        
 
     }
     IEnumerator PlayFootstepFromRenderer(Renderer Renderer)
@@ -123,7 +227,6 @@ public class FootstepSounds : MonoBehaviour
     }
     private AudioClip GetClipFrom(AudioClip[] clips)
     {
-        Debug.Log("GetClipFrom");
         int clipIndex = Random.Range(1, clips.Length);
 
         AudioClip temporary = clips[clipIndex];

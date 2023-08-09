@@ -15,6 +15,10 @@ public class PlayerStateMachine : MonoBehaviour
     public PlayerStateFactory States { get { return _states; } set { _states = value; } }
     //groundcheck
     public bool IsGrounded { get { return _isGrounded; } set { _isGrounded = value; } }
+    //roofcheck
+    public LayerMask RoofLayers { get { return _roofLayers; } }
+    public float RoofCheckDistance { get { return _roofCheckDistance; } }
+    public float RoofCheckStart { get { return _roofCheckStart; } }
     //basic movement
     public float CameraAngularSpeed { get { return _cameraAngularSpeed.AngularSpeedY; } }
     public bool OnLadder { get { return _onLadder; } set { _onLadder = value; } }
@@ -40,7 +44,6 @@ public class PlayerStateMachine : MonoBehaviour
     public float CrouchHeight { get { return _crouchHeight; } set { _crouchHeight = value; } }
     public float CrouchSmoothTime { get { return _crouchSmoothTime; } set { _crouchSmoothTime = value; } }
     public Vector3 CrouchCenterAdjusted { get { return _crouchCenterAdjusted; } set { _crouchCenterAdjusted = value; } }
-    public bool CanGoUp { get { return _canGoUp; } set { _canGoUp = value; } }
     public Vector3 AirMovementSmoothValueInAir { get { return _airMovementSmoothValueInAir; } set { _airMovementSmoothValueInAir = value; } }
     public Vector3 MovementSmooth { get { return _movementSmooth; } set { _movementSmooth = value; } }
     public CharacterController CharacterController { get { return _characterController; } }
@@ -231,8 +234,7 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField] private float _standHeight = 2f;
     [Tooltip("")]
     [SerializeField] private float _crouchHeight = 1f;
-    private bool _canGoUp;
-    private RaycastHit _roofCheckInfo;
+    
 
     public Vector3 _crouchCenterAdjusted;
     public Vector3 _standCenterAdjusted;
@@ -335,7 +337,7 @@ public class PlayerStateMachine : MonoBehaviour
     void Update()
     {
         GroundCheck();
-        RoofCheck();
+        //RoofCheck();
         _currentState.UpdateStates();
         Debug.Log(_currentState);
         _moveInput = GetPlayerMovement;
@@ -365,20 +367,7 @@ public class PlayerStateMachine : MonoBehaviour
         }
 
     }
-    void RoofCheck()
-    {
-        Ray ray = new Ray(transform.position, transform.up);
-        if (Physics.Raycast(ray, out _roofCheckInfo, _roofCheckDistance, _roofLayers, QueryTriggerInteraction.Ignore))
-        {
-            _canGoUp = false;
-            Debug.DrawRay(transform.position, transform.up * _roofCheckDistance);
-        }
-        else
-        {
-            _canGoUp = true;
-        }
-
-    }
+    
     private bool OnStairs()
     {
         if (!_isGrounded && !_isJumping && !_isFalling)
@@ -471,7 +460,6 @@ public class PlayerStateMachine : MonoBehaviour
 
     public void SetParent(Transform newParent)
     {
-        // Sets "newParent" as the new parent of the child GameObject.
         transform.SetParent(newParent, true);
     }
     /*void HandleSlopesAndStairs()
@@ -533,20 +521,7 @@ public class PlayerStateMachine : MonoBehaviour
             RaycastHit hit;
             if (Physics.SphereCast(transform.position * (_characterController.height / 2), 1f, Vector3.down, out hit, _lengthFromGround))
             {
-                
                 _animator.SetFloat(_hitDistance, hit.distance);
-                //Debug.Log("hit.distance: " + hit.distance);
-                
-                /*if (hit.distance >= 0.05f)
-                {
-                    _isFalling = true;
-
-                }
-                else
-                {
-                    Debug.Log(hit.distance);
-                    _isFalling = false;
-                }*/
             }
         //}
 
@@ -581,16 +556,6 @@ public class PlayerStateMachine : MonoBehaviour
     }
     void GroundCheck()
     {
-        //_groundCheckOrigin = transform.position + _offset;
-
-        /*if (/*characterController.isGrounded*/ /*Physics.SphereCast(_groundCheckOrigin, _groundCheckRadius, Vector3.down, out _hitInfo, _maxDistance, _groundLayers))
-        {
-            _isGrounded = true;
-        }
-        else
-        {
-            _isGrounded = false;
-        }*/
         _spherePosition = new Vector3(transform.position.x, transform.position.y - _groundedOffset, transform.position.z);
         _isGrounded = Physics.CheckSphere(_spherePosition, _groundCheckRadius, _groundLayers, QueryTriggerInteraction.Ignore);
 
@@ -598,13 +563,6 @@ public class PlayerStateMachine : MonoBehaviour
 
     void OnDrawGizmosSelected()
     {
-        //_groundCheckOrigin = transform.position + _offset;
-        //Gizmos.color = Color.green;
-        //Gizmos.DrawSphere(_groundCheckOrigin, _groundCheckRadius);
-        //// Draw a sphere at the hit point
-        //Gizmos.color = Color.yellow;
-        //Gizmos.DrawSphere(_hitInfo.point, 0.1f);
-        //Gizmos.DrawLine(_groundCheckOrigin, _groundCheckOrigin + Vector3.down * _maxDistance);
         Color transparentGreen = new Color(0.0f, 1.0f, 0.0f, 0.35f);
         Color transparentRed = new Color(1.0f, 0.0f, 0.0f, 0.35f);
 

@@ -701,7 +701,7 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: -203655887218126122, guid: b6e649cfd417ada48a0caf091fa2c33b, type: 3}
-    m_Threshold: 0.083333336
+    m_Threshold: 0.06181319
     m_Position: {x: 0, y: 1}
     m_TimeScale: 1.3
     m_CycleOffset: 0
@@ -709,7 +709,7 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: -203655887218126122, guid: ca2a8267c1896fb49bd7aa329d34b1ea, type: 3}
-    m_Threshold: 0.16666667
+    m_Threshold: 0.12362638
     m_Position: {x: -1, y: 0}
     m_TimeScale: 1.3
     m_CycleOffset: 0
@@ -717,7 +717,7 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: -203655887218126122, guid: ca2a8267c1896fb49bd7aa329d34b1ea, type: 3}
-    m_Threshold: 0.25
+    m_Threshold: 0.18543957
     m_Position: {x: 1, y: 0}
     m_TimeScale: 1.3
     m_CycleOffset: 0.5
@@ -725,7 +725,7 @@ BlendTree:
     m_Mirror: 1
   - serializedVersion: 2
     m_Motion: {fileID: -203655887218126122, guid: 5216174811b57084abbfe4f21c42c8fd, type: 3}
-    m_Threshold: 0.33333334
+    m_Threshold: 0.24725276
     m_Position: {x: -1.3, y: -1.78}
     m_TimeScale: 0.8
     m_CycleOffset: 0.5
@@ -733,7 +733,7 @@ BlendTree:
     m_Mirror: 1
   - serializedVersion: 2
     m_Motion: {fileID: -203655887218126122, guid: 5216174811b57084abbfe4f21c42c8fd, type: 3}
-    m_Threshold: 0.41666666
+    m_Threshold: 0.30906594
     m_Position: {x: 1.3, y: -1.78}
     m_TimeScale: 0.8
     m_CycleOffset: 0
@@ -741,7 +741,7 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: -203655887218126122, guid: abfca2a27d122b3438a30ae8454e3332, type: 3}
-    m_Threshold: 0.5
+    m_Threshold: 0.37087914
     m_Position: {x: 0, y: -1}
     m_TimeScale: 1.3
     m_CycleOffset: 0.5
@@ -749,7 +749,7 @@ BlendTree:
     m_Mirror: 1
   - serializedVersion: 2
     m_Motion: {fileID: -203655887218126122, guid: fdf5b7bbb87b3bd469ce41d6dc2d707e, type: 3}
-    m_Threshold: 0.5833333
+    m_Threshold: 0.43269232
     m_Position: {x: 0, y: 2}
     m_TimeScale: 1
     m_CycleOffset: 0
@@ -757,7 +757,7 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: -203655887218126122, guid: c8935b2e62af8044e815233ea3b35678, type: 3}
-    m_Threshold: 0.6666667
+    m_Threshold: 0.49450552
     m_Position: {x: -2, y: 0}
     m_TimeScale: 1
     m_CycleOffset: 0
@@ -765,7 +765,7 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: -203655887218126122, guid: c8935b2e62af8044e815233ea3b35678, type: 3}
-    m_Threshold: 0.75
+    m_Threshold: 0.5563187
     m_Position: {x: 2, y: 0}
     m_TimeScale: 1
     m_CycleOffset: 0.5
@@ -773,7 +773,7 @@ BlendTree:
     m_Mirror: 1
   - serializedVersion: 2
     m_Motion: {fileID: -203655887218126122, guid: 5216174811b57084abbfe4f21c42c8fd, type: 3}
-    m_Threshold: 0.8333333
+    m_Threshold: 0.6181319
     m_Position: {x: 2, y: -1}
     m_TimeScale: 1.1
     m_CycleOffset: 0
@@ -781,7 +781,7 @@ BlendTree:
     m_Mirror: 0
   - serializedVersion: 2
     m_Motion: {fileID: -203655887218126122, guid: 5216174811b57084abbfe4f21c42c8fd, type: 3}
-    m_Threshold: 0.9166667
+    m_Threshold: 0.6799451
     m_Position: {x: -2, y: -1}
     m_TimeScale: 1
     m_CycleOffset: 0.5
@@ -789,7 +789,7 @@ BlendTree:
     m_Mirror: 1
   - serializedVersion: 2
     m_Motion: {fileID: -203655887218126122, guid: 8709f40fc744ded42aeab0aa929fcc05, type: 3}
-    m_Threshold: 1
+    m_Threshold: 0.7417583
     m_Position: {x: 0, y: -2}
     m_TimeScale: 1
     m_CycleOffset: 0
@@ -798,7 +798,7 @@ BlendTree:
   m_BlendParameter: x_velocity
   m_BlendParameterY: y_velocity
   m_MinThreshold: 0
-  m_MaxThreshold: 1
+  m_MaxThreshold: 0.7417583
   m_UseAutomaticThresholds: 1
   m_NormalizedBlendValues: 0
   m_BlendType: 2
@@ -884,7 +884,7 @@ AnimatorStateMachine:
     m_Position: {x: -30, y: 430, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -6690373473402335624}
-    m_Position: {x: -620, y: 30, z: 0}
+    m_Position: {x: -520, y: 90, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
   m_EntryTransitions: []
@@ -1276,7 +1276,7 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
+  m_TransitionDuration: 0.14118387
   m_TransitionOffset: 0
   m_ExitTime: 0.66993403
   m_HasExitTime: 1
