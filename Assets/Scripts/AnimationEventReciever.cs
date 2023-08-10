@@ -14,7 +14,7 @@ public class AnimationEventReciever : MonoBehaviour
 
     private void Footstep(AnimationEvent animationEvent)
     {
-        if (Time.time - LastFootstepTime >= CooldownDuration)
+        if (Time.time - LastFootstepTime >= CooldownDuration && animationEvent.animatorClipInfo.weight > 0.1f)
         {
             OnFootstep?.Invoke();
             LastFootstepTime = Time.time;
@@ -22,8 +22,7 @@ public class AnimationEventReciever : MonoBehaviour
     }
     private void LandStep(AnimationEvent animationEvent)
     {
-        Debug.Log("animatorClipInfo.weight = " + animationEvent.animatorClipInfo.weight + animationEvent.animatorClipInfo.clip);
-        if (Time.time - LastFootstepTime >= CooldownDuration)
+        if (Time.time - LastFootstepTime >= CooldownDuration && animationEvent.animatorClipInfo.weight > 0.1f)
         {
             OnLandStep?.Invoke();
             LastFootstepTime = Time.time;
