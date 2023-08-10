@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 31211ebadc40da34e8496d0a6c339aa4
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 194525
+  packageName: Blaze AI Engine
+  packageVersion: 2.6.4
+  assetPath: Assets/Blaze AI/Scripts/Behaviours/Editor/AlertTagBehaviourInspector.cs
+  uploadId: 604435

@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c8029bd1b0bf734caa628a6145ef7fa, type: 3}
+  m_Name: Parasite
+  m_EditorClassIdentifier: 
+  normalState:
+  - {fileID: 8300000, guid: 1ad5c8f7768830248a87799a225535b1, type: 3}
+  - {fileID: 8300000, guid: aafec4e9679a428479d672bd2daf8863, type: 3}
+  alertState:
+  - {fileID: 8300000, guid: 2b88892334cb12142b3cf63f1e94ce4b, type: 3}
+  returningToNormalState:
+  - {fileID: 8300000, guid: ae5c860bf3212c44798db3809304f65d, type: 3}
+  surprisedState:
+  - {fileID: 8300000, guid: 3576c276c38bdaa43804298f9fed6f76, type: 3}
+  attacks:
+  - {fileID: 8300000, guid: 6082234896585db44879a1bc35752807, type: 3}
+  - {fileID: 8300000, guid: dfe0ba94ce9e79e4aa95fb3f86aa66ed, type: 3}
+  - {fileID: 8300000, guid: 5f8fdf2504b71324b9e5a60724e38050, type: 3}
+  - {fileID: 8300000, guid: 05d938d947fd06c46ab1298891254b14, type: 3}
+  attackIdle:
+  - {fileID: 8300000, guid: fb2fa13fbdb38e44dae4e52ba1db3798, type: 3}
+  - {fileID: 8300000, guid: 8188fc35211ae344c92e343f77def000, type: 3}
+  moveToAttack:
+  - {fileID: 8300000, guid: bd8e802ca6d7e9143a74d7e01e81a44c, type: 3}
+  chase: []
+  returnPatrol: []
+  duringShooting: []
+  moveToShoot: []
+  goingToCover: []
+  distracted: []
+  distractionCheckLocation: []
+  searchStart: []
+  searchEnd: []
+  hit: []
+  death: []
+  alertTags:
+  - {fileID: 8300000, guid: bd8e802ca6d7e9143a74d7e01e81a44c, type: 3}
+  fleeing: []
+  companionIdleAndWander: []
+  companionOnFollow: []
+  companionOnStop: []

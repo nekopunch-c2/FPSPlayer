@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 1f44cddbc94fefb46b01216e63c4f7a9
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 194525
+  packageName: Blaze AI Engine
+  packageVersion: 2.6.4
+  assetPath: Assets/Blaze AI/Scripts/Behaviours/DistractedStateBehaviour.cs
+  uploadId: 604435

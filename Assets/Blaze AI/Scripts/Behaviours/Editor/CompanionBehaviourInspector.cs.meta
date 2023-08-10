@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 5c1ddf730b2557a4ea67e8aef43ff01f
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 194525
+  packageName: Blaze AI Engine
+  packageVersion: 2.6.4
+  assetPath: Assets/Blaze AI/Scripts/Behaviours/Editor/CompanionBehaviourInspector.cs
+  uploadId: 604435

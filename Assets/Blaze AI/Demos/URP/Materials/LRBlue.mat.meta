@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0d0e50570a5c0d64aa6afe923f6757ac
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 194525
+  packageName: Blaze AI Engine
+  packageVersion: 2.6.4
+  assetPath: Assets/Blaze AI/Demos/URP/Materials/LRBlue.mat
+  uploadId: 604435

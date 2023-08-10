@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f25e430a2320a9b45ae3d75027937656
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 194525
+  packageName: Blaze AI Engine
+  packageVersion: 2.6.4
+  assetPath: Assets/Blaze AI/Demos/Standard RP/Materials/Obstacles.mat
+  uploadId: 604435

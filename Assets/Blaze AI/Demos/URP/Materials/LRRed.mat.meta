@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ca1e8d4dce915034d8f3b5e4de305780
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 194525
+  packageName: Blaze AI Engine
+  packageVersion: 2.6.4
+  assetPath: Assets/Blaze AI/Demos/URP/Materials/LRRed.mat
+  uploadId: 604435

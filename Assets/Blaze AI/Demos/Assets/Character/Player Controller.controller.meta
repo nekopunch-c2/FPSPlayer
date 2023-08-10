@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2851a1becbfc7e24fb2ec7e39b38dbb1
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 194525
+  packageName: Blaze AI Engine
+  packageVersion: 2.6.4
+  assetPath: Assets/Blaze AI/Demos/Assets/Character/Player Controller.controller
+  uploadId: 604435

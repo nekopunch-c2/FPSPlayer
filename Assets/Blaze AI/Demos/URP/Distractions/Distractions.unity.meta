@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 9ed45d41bddadd5428cb75931319d60c
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 194525
+  packageName: Blaze AI Engine
+  packageVersion: 2.6.4
+  assetPath: Assets/Blaze AI/Demos/URP/Distractions/Distractions.unity
+  uploadId: 604435

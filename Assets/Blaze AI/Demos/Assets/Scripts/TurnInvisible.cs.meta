@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 110b5a302519dd949b8c6e2406a7fce1
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 194525
+  packageName: Blaze AI Engine
+  packageVersion: 2.6.4
+  assetPath: Assets/Blaze AI/Demos/Assets/Scripts/TurnInvisible.cs
+  uploadId: 604435

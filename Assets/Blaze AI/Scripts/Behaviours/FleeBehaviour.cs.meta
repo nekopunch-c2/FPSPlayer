@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 38c13a10f23ea8742988fe444a687da3
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 194525
+  packageName: Blaze AI Engine
+  packageVersion: 2.6.4
+  assetPath: Assets/Blaze AI/Scripts/Behaviours/FleeBehaviour.cs
+  uploadId: 604435

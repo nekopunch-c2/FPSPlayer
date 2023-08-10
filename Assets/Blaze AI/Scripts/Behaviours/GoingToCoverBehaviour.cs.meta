@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 2ddf5660980c1a646b1c8e5190c3a96b
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 194525
+  packageName: Blaze AI Engine
+  packageVersion: 2.6.4
+  assetPath: Assets/Blaze AI/Scripts/Behaviours/GoingToCoverBehaviour.cs
+  uploadId: 604435

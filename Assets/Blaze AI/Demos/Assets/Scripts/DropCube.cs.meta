@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 2ae4929477bb8c5449bb711d5948c7b0
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 194525
+  packageName: Blaze AI Engine
+  packageVersion: 2.6.4
+  assetPath: Assets/Blaze AI/Demos/Assets/Scripts/DropCube.cs
+  uploadId: 604435

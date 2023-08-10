@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 3793bb6c00a2b764998f1541a4ce37b3
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 194525
+  packageName: Blaze AI Engine
+  packageVersion: 2.6.4
+  assetPath: Assets/Blaze AI/Demos/Assets/Character/Warrior Controller.controller
+  uploadId: 604435

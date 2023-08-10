@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: f35a87d96264d9743ab515f3ecea94b4
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 194525
+  packageName: Blaze AI Engine
+  packageVersion: 2.6.4
+  assetPath: Assets/Blaze AI/Demos/Assets/Scripts/ChangeState.cs
+  uploadId: 604435

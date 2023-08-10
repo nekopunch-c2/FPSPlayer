@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 3554ce8aed28cfb408e0dc0514f49e09
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 194525
+  packageName: Blaze AI Engine
+  packageVersion: 2.6.4
+  assetPath: Assets/Blaze AI/Demos/Standard RP/PostProcessing.asset
+  uploadId: 604435
